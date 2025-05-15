@@ -1,0 +1,5 @@
+api-march-madness-tracker/
+├── app.py              # Your Flask API
+├── scraper.py          # Your scraper script (optional)
+├── requirements.txt    # Python dependencies
+├── render.yaml         # Render deployment config
