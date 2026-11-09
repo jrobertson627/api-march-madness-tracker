@@ -3,3 +3,5 @@ flask-cors
 pandas
 requests
 beautifulsoup4
+psycopg[binary,pool]
+python-dotenv

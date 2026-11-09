@@ -5,3 +5,6 @@ services:
     plan: free
     buildCommand: pip install -r requirements.txt
     startCommand: python app.py
+    envVars:
+      - key: DATABASE_URL
+        sync: false # set in the Render dashboard; never commit it

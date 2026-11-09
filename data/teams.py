@@ -1,103 +1,125 @@
-"""Seed team/season data shaped like the web-scraper's Postgres schema.
+"""Team/season data backed by the cbb-web-scraper Supabase (Postgres) database.
 
-Field names mirror what the scraper's `schools` / `school_seasons` /
-`team_game_stats` tables will eventually hold, so a future repository
-implementation backed by that real database can replace this module
-without changing the API routes that call it.
+Replaces the earlier hard-coded seed module; the function names and response
+shapes are unchanged so the API routes didn't need to change.
 
-This is placeholder data for one bracket region (2025 seeds) until the
-scraper has a working Sports-Reference adapter and permission to crawl.
+Tables used: schools, school_seasons, team_seasons, team_season_stats
+(side = 'team' | 'opponent'), game_teams, games.
+
+Team ids are the Sports-Reference school slug (e.g. "michigan-state"), taken
+from schools.canonical_source_path.
 """
 
-SEASON = 2026
+from data.db import query
 
-_TEAMS = [
-    {
-        "id": "auburn", "name": "Auburn", "seed": 1, "conference": "SEC", "record": "28-5",
-        "stats": {"efficiency_margin": 25.8, "sos": 10.9, "turnover_rate": 14.8, "rebound_rate": 54.3, "efg_pct": 56.2, "recent_form": 13.1},
-    },
-    {
-        "id": "alabama-st", "name": "Alabama St.", "seed": 16, "conference": "SWAC", "record": "20-13",
-        "stats": {"efficiency_margin": -8.2, "sos": -6.4, "turnover_rate": 19.5, "rebound_rate": 47.8, "efg_pct": 46.9, "recent_form": -3.5},
-    },
-    {
-        "id": "louisville", "name": "Louisville", "seed": 8, "conference": "ACC", "record": "24-9",
-        "stats": {"efficiency_margin": 15.4, "sos": 8.1, "turnover_rate": 16.9, "rebound_rate": 51.2, "efg_pct": 52.8, "recent_form": 6.7},
-    },
-    {
-        "id": "creighton", "name": "Creighton", "seed": 9, "conference": "Big East", "record": "22-11",
-        "stats": {"efficiency_margin": 13.9, "sos": 7.6, "turnover_rate": 15.7, "rebound_rate": 50.4, "efg_pct": 53.6, "recent_form": 9.2},
-    },
-    {
-        "id": "michigan", "name": "Michigan", "seed": 5, "conference": "Big Ten", "record": "24-10",
-        "stats": {"efficiency_margin": 18.6, "sos": 9.3, "turnover_rate": 15.1, "rebound_rate": 52.7, "efg_pct": 51.4, "recent_form": 7.8},
-    },
-    {
-        "id": "uc-san-diego", "name": "UC San Diego", "seed": 12, "conference": "Big West", "record": "27-8",
-        "stats": {"efficiency_margin": 12.1, "sos": 1.8, "turnover_rate": 13.9, "rebound_rate": 49.6, "efg_pct": 54.1, "recent_form": 10.4},
-    },
-    {
-        "id": "texas-am", "name": "Texas A&M", "seed": 4, "conference": "SEC", "record": "22-10",
-        "stats": {"efficiency_margin": 19.7, "sos": 9.8, "turnover_rate": 17.2, "rebound_rate": 53.9, "efg_pct": 50.7, "recent_form": 5.9},
-    },
-    {
-        "id": "yale", "name": "Yale", "seed": 13, "conference": "Ivy", "record": "23-6",
-        "stats": {"efficiency_margin": 9.8, "sos": 0.4, "turnover_rate": 14.2, "rebound_rate": 48.9, "efg_pct": 52.3, "recent_form": 8.6},
-    },
-    {
-        "id": "ole-miss", "name": "Ole Miss", "seed": 6, "conference": "SEC", "record": "20-11",
-        "stats": {"efficiency_margin": 16.3, "sos": 8.9, "turnover_rate": 16.4, "rebound_rate": 51.8, "efg_pct": 51.9, "recent_form": 4.3},
-    },
-    {
-        "id": "north-carolina", "name": "North Carolina", "seed": 11, "conference": "ACC", "record": "21-13",
-        "stats": {"efficiency_margin": 14.7, "sos": 8.4, "turnover_rate": 17.8, "rebound_rate": 50.9, "efg_pct": 52.1, "recent_form": 3.1},
-    },
-    {
-        "id": "iowa-state", "name": "Iowa State", "seed": 3, "conference": "Big 12", "record": "23-9",
-        "stats": {"efficiency_margin": 21.4, "sos": 9.6, "turnover_rate": 13.5, "rebound_rate": 51.5, "efg_pct": 53.4, "recent_form": 11.8},
-    },
-    {
-        "id": "lipscomb", "name": "Lipscomb", "seed": 14, "conference": "ASUN", "record": "26-7",
-        "stats": {"efficiency_margin": 6.5, "sos": -3.1, "turnover_rate": 15.9, "rebound_rate": 49.1, "efg_pct": 51.5, "recent_form": 6.9},
-    },
-    {
-        "id": "marquette", "name": "Marquette", "seed": 7, "conference": "Big East", "record": "22-10",
-        "stats": {"efficiency_margin": 15.9, "sos": 8.7, "turnover_rate": 15.3, "rebound_rate": 50.2, "efg_pct": 52.6, "recent_form": 5.4},
-    },
-    {
-        "id": "new-mexico", "name": "New Mexico", "seed": 10, "conference": "Mountain West", "record": "25-9",
-        "stats": {"efficiency_margin": 13.2, "sos": 3.5, "turnover_rate": 16.1, "rebound_rate": 52.4, "efg_pct": 50.9, "recent_form": 8.9},
-    },
-    {
-        "id": "michigan-st", "name": "Michigan St.", "seed": 2, "conference": "Big Ten", "record": "27-7",
-        "stats": {"efficiency_margin": 22.6, "sos": 10.2, "turnover_rate": 14.6, "rebound_rate": 55.1, "efg_pct": 52.9, "recent_form": 10.7},
-    },
-    {
-        "id": "bryant", "name": "Bryant", "seed": 15, "conference": "America East", "record": "21-11",
-        "stats": {"efficiency_margin": -4.8, "sos": -5.9, "turnover_rate": 18.3, "rebound_rate": 47.5, "efg_pct": 47.8, "recent_form": -1.2},
-    },
-]
+SEASON = 2026  # season ending year
 
-_TEAMS_BY_ID = {team["id"]: team for team in _TEAMS}
+_PATH_PREFIX = "www.sports-reference.com/cbb/schools/"
+_PATH_SUFFIX = "/men"
+
+_TEAM_COLUMNS = """
+    split_part(s.canonical_source_path, '/', 4) AS id,
+    s.display_name AS name,
+    ts.ncaa_seed AS seed,
+    regexp_replace(ts.conference_name, ' MBB$', '') AS conference,
+    ts.wins,
+    ts.losses
+"""
 
 
-def list_teams():
-    return [
-        {"id": t["id"], "name": t["name"], "seed": t["seed"], "conference": t["conference"], "record": t["record"]}
-        for t in _TEAMS
-    ]
+def _f(value, ndigits=1):
+    return None if value is None else round(float(value), ndigits)
+
+
+def _team_header(row):
+    record = None
+    if row["wins"] is not None and row["losses"] is not None:
+        record = f"{row['wins']}-{row['losses']}"
+    return {
+        "id": row["id"],
+        "name": row["name"],
+        "seed": row["seed"],
+        "conference": row["conference"],
+        "record": record,
+    }
+
+
+def list_teams(season=SEASON):
+    """NCAA tournament teams (those with a seed) for the season, best seed first."""
+    rows = query(
+        f"""
+        SELECT {_TEAM_COLUMNS}
+        FROM schools s
+        JOIN school_seasons ss ON ss.school_id = s.id AND ss.ending_year = %s
+        JOIN team_seasons ts ON ts.school_season_id = ss.id
+        WHERE ts.ncaa_seed IS NOT NULL
+        ORDER BY ts.ncaa_seed, s.display_name
+        """,
+        (season,),
+    )
+    return [_team_header(r) for r in rows]
 
 
 def get_team_stats(team_id, season=SEASON):
-    team = _TEAMS_BY_ID.get(team_id)
-    if team is None:
+    rows = query(
+        f"""
+        SELECT {_TEAM_COLUMNS},
+            ts.sos, ts.off_rtg, ts.def_rtg,
+            t.fg, t.fga, t.fg3, t.fta, t.tov, t.trb,
+            o.trb AS opp_trb,
+            (
+                SELECT avg(m.margin) FROM (
+                    SELECT gt.final_score - opp.final_score AS margin
+                    FROM game_teams gt
+                    JOIN game_teams opp ON opp.game_id = gt.game_id AND opp.id <> gt.id
+                    JOIN games g ON g.id = gt.game_id
+                    WHERE gt.team_source_path = s.canonical_source_path
+                      AND g.game_status = 'final'
+                      AND g.game_date BETWEEN make_date(ss.ending_year - 1, 10, 1)
+                                          AND make_date(ss.ending_year, 7, 1)
+                    ORDER BY g.game_date DESC
+                    LIMIT 10
+                ) m
+            ) AS recent_form
+        FROM schools s
+        JOIN school_seasons ss ON ss.school_id = s.id AND ss.ending_year = %s
+        JOIN team_seasons ts ON ts.school_season_id = ss.id
+        LEFT JOIN team_season_stats t ON t.school_season_id = ss.id AND t.side = 'team'
+        LEFT JOIN team_season_stats o ON o.school_season_id = ss.id AND o.side = 'opponent'
+        WHERE s.canonical_source_path = %s
+        """,
+        (season, f"{_PATH_PREFIX}{team_id}{_PATH_SUFFIX}"),
+    )
+    if not rows:
         return None
+    r = rows[0]
+
+    efficiency_margin = None
+    if r["off_rtg"] is not None and r["def_rtg"] is not None:
+        efficiency_margin = _f(r["off_rtg"] - r["def_rtg"])
+
+    turnover_rate = None
+    if None not in (r["fga"], r["fta"], r["tov"]):
+        possessions = r["fga"] + 0.44 * r["fta"] + r["tov"]
+        turnover_rate = _f(100 * r["tov"] / possessions) if possessions else None
+
+    rebound_rate = None
+    if r["trb"] is not None and r["opp_trb"] is not None and (r["trb"] + r["opp_trb"]):
+        rebound_rate = _f(100 * r["trb"] / (r["trb"] + r["opp_trb"]))
+
+    efg_pct = None
+    if None not in (r["fg"], r["fg3"]) and r["fga"]:
+        efg_pct = _f(100 * (r["fg"] + 0.5 * r["fg3"]) / r["fga"])
+
     return {
-        "id": team["id"],
-        "name": team["name"],
-        "seed": team["seed"],
-        "conference": team["conference"],
-        "record": team["record"],
+        **_team_header(r),
         "season": season,
-        "stats": team["stats"],
+        "stats": {
+            "efficiency_margin": efficiency_margin,  # off_rtg - def_rtg
+            "sos": _f(r["sos"]),
+            "turnover_rate": turnover_rate,  # TOV / (FGA + 0.44*FTA + TOV)
+            "rebound_rate": rebound_rate,  # TRB / (TRB + opp TRB)
+            "efg_pct": efg_pct,  # (FG + 0.5*3P) / FGA
+            "recent_form": _f(r["recent_form"]),  # avg margin, last 10 games
+        },
     }

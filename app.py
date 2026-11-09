@@ -16,7 +16,8 @@ def health():
 
 @app.route("/teams")
 def get_teams():
-    return jsonify(teams.list_teams())
+    season = request.args.get("season", type=int) or teams.SEASON
+    return jsonify(teams.list_teams(season))
 
 
 @app.route("/teams/<team_id>/stats")
