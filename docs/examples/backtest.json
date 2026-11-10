@@ -1,10 +1,10 @@
 {
- "created_at": "2026-11-10T22:24:28+00:00",
+ "created_at": "2026-11-10T22:37:30+00:00",
  "data_hash": "samplehash",
  "limits": [
   "134 tournament games in 2022 to 2023 were used to choose the design.",
   "67 games in 2024 were scored once after the design was chosen. That is the only comparison the design choice did not influence.",
-  "Every paired comparison below has an interval that includes zero, so the differences could be noise.",
+  "Every paired comparison on this page has an interval that includes zero, so the differences could be noise.",
   "Games where the model picked the upset were upsets 1 of 1 times; games with no flag, 0 of 2. The 'above seed history' flag was right 0 of 1 times and is not supported by this evidence.",
   "Lower log loss and Brier score are better. A coin flip scores 0.693 per game.",
   "Probabilities are for a neutral court, with team ratings frozen at Selection Sunday and games treated as independent."

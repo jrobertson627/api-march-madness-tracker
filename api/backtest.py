@@ -118,9 +118,9 @@ def limits_text(selection: dict, locked: dict | None, flag_summary: dict) -> lis
     if pairs:
         inside = sum(not p["interval_excludes_zero"] for p in pairs)
         if inside == len(pairs):
-            lines.append("Every paired comparison below has an interval that includes zero, so the differences could be noise.")
+            lines.append("Every paired comparison on this page has an interval that includes zero, so the differences could be noise.")
         else:
-            lines.append(f"{inside} of {len(pairs)} paired comparisons below have an interval that includes zero, so those differences could be noise. The others exclude zero.")
+            lines.append(f"{inside} of {len(pairs)} paired comparisons on this page have an interval that includes zero, so those differences could be noise. The others exclude zero.")
     s = flag_summary
     lines.append(f"Games where the model picked the upset were upsets {s['model_picks_upset']['upsets']} of {s['model_picks_upset']['games']} times; "
                  f"games with no flag, {s['no_flag']['upsets']} of {s['no_flag']['games']}. The 'above seed history' flag was right {s['model_above_history']['upsets']} of "
