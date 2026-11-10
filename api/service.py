@@ -414,7 +414,7 @@ class Service:
                 for j, w in enumerate(pk.winners[r]):
                     a, b = prev[2 * j], prev[2 * j + 1]
                     rows.append({"round": r, "round_name": ROUND_NAMES.get(r, f"round {r}"), "game": j, "team_a": bracket.teams[a], "team_b": bracket.teams[b],
-                                 "pick": bracket.teams[w], "p_pick_wins_game": _r(levels.arrays[r][j, w]),
+                                 "pick": bracket.teams[w], "p_pick_wins_game": _r(levels.arrays[r][j, w]), "p_a_beats_b": _r(P[a, b]),
                                  "score_a": _r(ctx["SC"][a, b], 1), "score_b": _r(ctx["SC"][b, a], 1), "margin_a": _r(ctx["MG"][a, b], 1)})
             out_picks[k] = rows
         first = upsets.first_round_table(bracket, exact_levels(bracket, P, fixed or None), ctx["history"]) if bracket.n_rounds == 6 else None

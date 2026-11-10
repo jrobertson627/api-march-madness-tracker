@@ -1287,6 +1287,7 @@
    {
     "game": 0,
     "margin_a": -5.9,
+    "p_a_beats_b": 0.2718,
     "p_pick_wins_game": 0.64,
     "pick": "e16",
     "round": 1,
@@ -1299,6 +1300,7 @@
    {
     "game": 1,
     "margin_a": -1.4,
+    "p_a_beats_b": 0.4438,
     "p_pick_wins_game": 0.5562,
     "pick": "e9",
     "round": 1,
@@ -1311,6 +1313,7 @@
    {
     "game": 2,
     "margin_a": -17.5,
+    "p_a_beats_b": 0.0514,
     "p_pick_wins_game": 0.9486,
     "pick": "e12",
     "round": 1,
@@ -1323,6 +1326,7 @@
    {
     "game": 3,
     "margin_a": 4.2,
+    "p_a_beats_b": 0.6665,
     "p_pick_wins_game": 0.6665,
     "pick": "e4",
     "round": 1,
@@ -1335,6 +1339,7 @@
    {
     "game": 4,
     "margin_a": -6.2,
+    "p_a_beats_b": 0.2629,
     "p_pick_wins_game": 0.7371,
     "pick": "e11",
     "round": 1,
@@ -1347,6 +1352,7 @@
    {
     "game": 5,
     "margin_a": -7.1,
+    "p_a_beats_b": 0.2347,
     "p_pick_wins_game": 0.7653,
     "pick": "e14",
     "round": 1,
@@ -1359,6 +1365,7 @@
    {
     "game": 6,
     "margin_a": -8.0,
+    "p_a_beats_b": 0.2081,
     "p_pick_wins_game": 0.7919,
     "pick": "e10",
     "round": 1,
@@ -1371,6 +1378,7 @@
    {
     "game": 7,
     "margin_a": -18.5,
+    "p_a_beats_b": 0.0438,
     "p_pick_wins_game": 0.9562,
     "pick": "e15",
     "round": 1,
@@ -1383,6 +1391,7 @@
    {
     "game": 8,
     "margin_a": -3.9,
+    "p_a_beats_b": 0.3417,
     "p_pick_wins_game": 0.4291,
     "pick": "w16c",
     "round": 1,
@@ -1395,6 +1404,7 @@
    {
     "game": 9,
     "margin_a": 1.9,
+    "p_a_beats_b": 0.5783,
     "p_pick_wins_game": 0.5783,
     "pick": "w8",
     "round": 1,
@@ -1407,6 +1417,7 @@
    {
     "game": 10,
     "margin_a": 5.7,
+    "p_a_beats_b": 0.7213,
     "p_pick_wins_game": 0.7213,
     "pick": "w5",
     "round": 1,
@@ -1419,6 +1430,7 @@
    {
     "game": 11,
     "margin_a": 9.7,
+    "p_a_beats_b": 0.8338,
     "p_pick_wins_game": 0.8338,
     "pick": "w4",
     "round": 1,
@@ -1431,6 +1443,7 @@
    {
     "game": 12,
     "margin_a": -2.4,
+    "p_a_beats_b": 0.403,
     "p_pick_wins_game": 0.597,
     "pick": "w11",
     "round": 1,
@@ -1443,6 +1456,7 @@
    {
     "game": 13,
     "margin_a": -11.5,
+    "p_a_beats_b": 0.1279,
     "p_pick_wins_game": 0.8721,
     "pick": "w14",
     "round": 1,
@@ -1455,6 +1469,7 @@
    {
     "game": 14,
     "margin_a": -1.8,
+    "p_a_beats_b": 0.4243,
     "p_pick_wins_game": 0.5757,
     "pick": "w10",
     "round": 1,
@@ -1467,6 +1482,7 @@
    {
     "game": 15,
     "margin_a": -8.2,
+    "p_a_beats_b": 0.2044,
     "p_pick_wins_game": 0.7956,
     "pick": "w15",
     "round": 1,
@@ -1479,6 +1495,7 @@
    {
     "game": 16,
     "margin_a": -8.1,
+    "p_a_beats_b": 0.2047,
     "p_pick_wins_game": 1.0,
     "pick": "s16",
     "round": 1,
@@ -1491,6 +1508,7 @@
    {
     "game": 17,
     "margin_a": 6.9,
+    "p_a_beats_b": 0.7594,
     "p_pick_wins_game": 0.7594,
     "pick": "s8",
     "round": 1,
@@ -1503,6 +1521,7 @@
    {
     "game": 18,
     "margin_a": 4.9,
+    "p_a_beats_b": 0.6919,
     "p_pick_wins_game": 0.6919,
     "pick": "s5",
     "round": 1,
@@ -1515,6 +1534,7 @@
    {
     "game": 19,
     "margin_a": -13.0,
+    "p_a_beats_b": 0.1026,
     "p_pick_wins_game": 0.8974,
     "pick": "s13",
     "round": 1,
@@ -1527,6 +1547,7 @@
    {
     "game": 20,
     "margin_a": 15.0,
+    "p_a_beats_b": 0.9247,
     "p_pick_wins_game": 0.9364,
     "pick": "s6",
     "round": 1,
@@ -1539,6 +1560,7 @@
    {
     "game": 21,
     "margin_a": 11.0,
+    "p_a_beats_b": 0.8616,
     "p_pick_wins_game": 0.8616,
     "pick": "s3",
     "round": 1,
@@ -1551,6 +1573,7 @@
    {
     "game": 22,
     "margin_a": 10.4,
+    "p_a_beats_b": 0.8501,
     "p_pick_wins_game": 0.8501,
     "pick": "s7",
     "round": 1,
@@ -1563,6 +1586,7 @@
    {
     "game": 23,
     "margin_a": -5.3,
+    "p_a_beats_b": 0.2934,
     "p_pick_wins_game": 0.7066,
     "pick": "s15",
     "round": 1,
@@ -1575,6 +1599,7 @@
    {
     "game": 24,
     "margin_a": -3.0,
+    "p_a_beats_b": 0.3793,
     "p_pick_wins_game": 0.6207,
     "pick": "m16",
     "round": 1,
@@ -1587,6 +1612,7 @@
    {
     "game": 25,
     "margin_a": -5.0,
+    "p_a_beats_b": 0.3015,
     "p_pick_wins_game": 0.6985,
     "pick": "m9",
     "round": 1,
@@ -1599,6 +1625,7 @@
    {
     "game": 26,
     "margin_a": -8.3,
+    "p_a_beats_b": 0.2017,
     "p_pick_wins_game": 0.7983,
     "pick": "m12",
     "round": 1,
@@ -1611,6 +1638,7 @@
    {
     "game": 27,
     "margin_a": 1.5,
+    "p_a_beats_b": 0.5619,
     "p_pick_wins_game": 0.5619,
     "pick": "m4",
     "round": 1,
@@ -1623,6 +1651,7 @@
    {
     "game": 28,
     "margin_a": -14.8,
+    "p_a_beats_b": 0.0785,
     "p_pick_wins_game": 0.74,
     "pick": "m11",
     "round": 1,
@@ -1635,6 +1664,7 @@
    {
     "game": 29,
     "margin_a": -9.2,
+    "p_a_beats_b": 0.1783,
     "p_pick_wins_game": 0.8217,
     "pick": "m14",
     "round": 1,
@@ -1647,6 +1677,7 @@
    {
     "game": 30,
     "margin_a": -4.5,
+    "p_a_beats_b": 0.3219,
     "p_pick_wins_game": 0.6781,
     "pick": "m10",
     "round": 1,
@@ -1659,6 +1690,7 @@
    {
     "game": 31,
     "margin_a": -11.9,
+    "p_a_beats_b": 0.1217,
     "p_pick_wins_game": 0.8783,
     "pick": "m15",
     "round": 1,
@@ -1671,6 +1703,7 @@
    {
     "game": 0,
     "margin_a": 10.7,
+    "p_a_beats_b": 0.8569,
     "p_pick_wins_game": 0.5556,
     "pick": "e16",
     "round": 2,
@@ -1683,6 +1716,7 @@
    {
     "game": 1,
     "margin_a": 0.5,
+    "p_a_beats_b": 0.5191,
     "p_pick_wins_game": 0.5443,
     "pick": "e12",
     "round": 2,
@@ -1695,6 +1729,7 @@
    {
     "game": 2,
     "margin_a": 2.0,
+    "p_a_beats_b": 0.5829,
     "p_pick_wins_game": 0.4707,
     "pick": "e11",
     "round": 2,
@@ -1707,6 +1742,7 @@
    {
     "game": 3,
     "margin_a": -10.3,
+    "p_a_beats_b": 0.1514,
     "p_pick_wins_game": 0.8326,
     "pick": "e15",
     "round": 2,
@@ -1719,6 +1755,7 @@
    {
     "game": 4,
     "margin_a": -16.2,
+    "p_a_beats_b": 0.0633,
     "p_pick_wins_game": 0.5513,
     "pick": "w8",
     "round": 2,
@@ -1731,6 +1768,7 @@
    {
     "game": 5,
     "margin_a": -16.1,
+    "p_a_beats_b": 0.064,
     "p_pick_wins_game": 0.7893,
     "pick": "w4",
     "round": 2,
@@ -1743,6 +1781,7 @@
    {
     "game": 6,
     "margin_a": 1.6,
+    "p_a_beats_b": 0.5676,
     "p_pick_wins_game": 0.4115,
     "pick": "w14",
     "round": 2,
@@ -1755,6 +1794,7 @@
    {
     "game": 7,
     "margin_a": -5.0,
+    "p_a_beats_b": 0.3014,
     "p_pick_wins_game": 0.5761,
     "pick": "w15",
     "round": 2,
@@ -1767,6 +1807,7 @@
    {
     "game": 8,
     "margin_a": 0.2,
+    "p_a_beats_b": 0.5092,
     "p_pick_wins_game": 0.571,
     "pick": "s16",
     "round": 2,
@@ -1779,6 +1820,7 @@
    {
     "game": 9,
     "margin_a": -0.3,
+    "p_a_beats_b": 0.4894,
     "p_pick_wins_game": 0.5108,
     "pick": "s13",
     "round": 2,
@@ -1791,6 +1833,7 @@
    {
     "game": 10,
     "margin_a": 12.2,
+    "p_a_beats_b": 0.8844,
     "p_pick_wins_game": 0.8405,
     "pick": "s6",
     "round": 2,
@@ -1803,6 +1846,7 @@
    {
     "game": 11,
     "margin_a": 2.1,
+    "p_a_beats_b": 0.5855,
     "p_pick_wins_game": 0.5444,
     "pick": "s7",
     "round": 2,
@@ -1815,6 +1859,7 @@
    {
     "game": 12,
     "margin_a": -3.2,
+    "p_a_beats_b": 0.3691,
     "p_pick_wins_game": 0.4687,
     "pick": "m9",
     "round": 2,
@@ -1827,6 +1872,7 @@
    {
     "game": 13,
     "margin_a": 13.1,
+    "p_a_beats_b": 0.8993,
     "p_pick_wins_game": 0.725,
     "pick": "m12",
     "round": 2,
@@ -1839,6 +1885,7 @@
    {
     "game": 14,
     "margin_a": 5.0,
+    "p_a_beats_b": 0.6962,
     "p_pick_wins_game": 0.5438,
     "pick": "m11",
     "round": 2,
@@ -1851,6 +1898,7 @@
    {
     "game": 15,
     "margin_a": -3.5,
+    "p_a_beats_b": 0.3566,
     "p_pick_wins_game": 0.607,
     "pick": "m15",
     "round": 2,
@@ -1863,6 +1911,7 @@
    {
     "game": 0,
     "margin_a": 6.1,
+    "p_a_beats_b": 0.7331,
     "p_pick_wins_game": 0.4184,
     "pick": "e16",
     "round": 3,
@@ -1875,6 +1924,7 @@
    {
     "game": 1,
     "margin_a": -4.8,
+    "p_a_beats_b": 0.3108,
     "p_pick_wins_game": 0.6195,
     "pick": "e15",
     "round": 3,
@@ -1887,6 +1937,7 @@
    {
     "game": 2,
     "margin_a": -1.1,
+    "p_a_beats_b": 0.4534,
     "p_pick_wins_game": 0.4727,
     "pick": "w4",
     "round": 3,
@@ -1899,6 +1950,7 @@
    {
     "game": 3,
     "margin_a": -1.9,
+    "p_a_beats_b": 0.4208,
     "p_pick_wins_game": 0.3259,
     "pick": "w15",
     "round": 3,
@@ -1911,6 +1963,7 @@
    {
     "game": 4,
     "margin_a": -1.1,
+    "p_a_beats_b": 0.4558,
     "p_pick_wins_game": 0.287,
     "pick": "s13",
     "round": 3,
@@ -1923,6 +1976,7 @@
    {
     "game": 5,
     "margin_a": 1.1,
+    "p_a_beats_b": 0.5474,
     "p_pick_wins_game": 0.512,
     "pick": "s6",
     "round": 3,
@@ -1935,6 +1989,7 @@
    {
     "game": 6,
     "margin_a": -5.9,
+    "p_a_beats_b": 0.2708,
     "p_pick_wins_game": 0.5738,
     "pick": "m12",
     "round": 3,
@@ -1947,6 +2002,7 @@
    {
     "game": 7,
     "margin_a": 1.0,
+    "p_a_beats_b": 0.5416,
     "p_pick_wins_game": 0.3464,
     "pick": "m15",
     "round": 3,
@@ -1959,6 +2015,7 @@
    {
     "game": 0,
     "margin_a": -2.6,
+    "p_a_beats_b": 0.3945,
     "p_pick_wins_game": 0.4548,
     "pick": "e15",
     "round": 4,
@@ -1971,6 +2028,7 @@
    {
     "game": 1,
     "margin_a": 7.5,
+    "p_a_beats_b": 0.7776,
     "p_pick_wins_game": 0.3852,
     "pick": "w4",
     "round": 4,
@@ -1983,6 +2041,7 @@
    {
     "game": 2,
     "margin_a": -3.4,
+    "p_a_beats_b": 0.3635,
     "p_pick_wins_game": 0.3421,
     "pick": "s6",
     "round": 4,
@@ -1995,6 +2054,7 @@
    {
     "game": 3,
     "margin_a": 3.3,
+    "p_a_beats_b": 0.6354,
     "p_pick_wins_game": 0.3846,
     "pick": "m12",
     "round": 4,
@@ -2007,6 +2067,7 @@
    {
     "game": 0,
     "margin_a": -3.1,
+    "p_a_beats_b": 0.3723,
     "p_pick_wins_game": 0.2782,
     "pick": "w4",
     "round": 5,
@@ -2019,6 +2080,7 @@
    {
     "game": 1,
     "margin_a": 4.3,
+    "p_a_beats_b": 0.671,
     "p_pick_wins_game": 0.2593,
     "pick": "s6",
     "round": 5,
@@ -2031,6 +2093,7 @@
    {
     "game": 0,
     "margin_a": -1.6,
+    "p_a_beats_b": 0.4341,
     "p_pick_wins_game": 0.1757,
     "pick": "s6",
     "round": 6,
@@ -2045,6 +2108,7 @@
    {
     "game": 0,
     "margin_a": -5.9,
+    "p_a_beats_b": 0.2718,
     "p_pick_wins_game": 0.64,
     "pick": "e16",
     "round": 1,
@@ -2057,6 +2121,7 @@
    {
     "game": 1,
     "margin_a": -1.4,
+    "p_a_beats_b": 0.4438,
     "p_pick_wins_game": 0.5562,
     "pick": "e9",
     "round": 1,
@@ -2069,6 +2134,7 @@
    {
     "game": 2,
     "margin_a": -17.5,
+    "p_a_beats_b": 0.0514,
     "p_pick_wins_game": 0.9486,
     "pick": "e12",
     "round": 1,
@@ -2081,6 +2147,7 @@
    {
     "game": 3,
     "margin_a": 4.2,
+    "p_a_beats_b": 0.6665,
     "p_pick_wins_game": 0.6665,
     "pick": "e4",
     "round": 1,
@@ -2093,6 +2160,7 @@
    {
     "game": 4,
     "margin_a": -6.2,
+    "p_a_beats_b": 0.2629,
     "p_pick_wins_game": 0.7371,
     "pick": "e11",
     "round": 1,
@@ -2105,6 +2173,7 @@
    {
     "game": 5,
     "margin_a": -7.1,
+    "p_a_beats_b": 0.2347,
     "p_pick_wins_game": 0.7653,
     "pick": "e14",
     "round": 1,
@@ -2117,6 +2186,7 @@
    {
     "game": 6,
     "margin_a": -8.0,
+    "p_a_beats_b": 0.2081,
     "p_pick_wins_game": 0.7919,
     "pick": "e10",
     "round": 1,
@@ -2129,6 +2199,7 @@
    {
     "game": 7,
     "margin_a": -18.5,
+    "p_a_beats_b": 0.0438,
     "p_pick_wins_game": 0.9562,
     "pick": "e15",
     "round": 1,
@@ -2141,6 +2212,7 @@
    {
     "game": 8,
     "margin_a": -3.9,
+    "p_a_beats_b": 0.3417,
     "p_pick_wins_game": 0.4291,
     "pick": "w16c",
     "round": 1,
@@ -2153,6 +2225,7 @@
    {
     "game": 9,
     "margin_a": 1.9,
+    "p_a_beats_b": 0.5783,
     "p_pick_wins_game": 0.5783,
     "pick": "w8",
     "round": 1,
@@ -2165,6 +2238,7 @@
    {
     "game": 10,
     "margin_a": 5.7,
+    "p_a_beats_b": 0.7213,
     "p_pick_wins_game": 0.7213,
     "pick": "w5",
     "round": 1,
@@ -2177,6 +2251,7 @@
    {
     "game": 11,
     "margin_a": 9.7,
+    "p_a_beats_b": 0.8338,
     "p_pick_wins_game": 0.8338,
     "pick": "w4",
     "round": 1,
@@ -2189,6 +2264,7 @@
    {
     "game": 12,
     "margin_a": -2.4,
+    "p_a_beats_b": 0.403,
     "p_pick_wins_game": 0.597,
     "pick": "w11",
     "round": 1,
@@ -2201,6 +2277,7 @@
    {
     "game": 13,
     "margin_a": -11.5,
+    "p_a_beats_b": 0.1279,
     "p_pick_wins_game": 0.8721,
     "pick": "w14",
     "round": 1,
@@ -2213,6 +2290,7 @@
    {
     "game": 14,
     "margin_a": -1.8,
+    "p_a_beats_b": 0.4243,
     "p_pick_wins_game": 0.5757,
     "pick": "w10",
     "round": 1,
@@ -2225,6 +2303,7 @@
    {
     "game": 15,
     "margin_a": -8.2,
+    "p_a_beats_b": 0.2044,
     "p_pick_wins_game": 0.7956,
     "pick": "w15",
     "round": 1,
@@ -2237,6 +2316,7 @@
    {
     "game": 16,
     "margin_a": -8.1,
+    "p_a_beats_b": 0.2047,
     "p_pick_wins_game": 1.0,
     "pick": "s16",
     "round": 1,
@@ -2249,6 +2329,7 @@
    {
     "game": 17,
     "margin_a": 6.9,
+    "p_a_beats_b": 0.7594,
     "p_pick_wins_game": 0.7594,
     "pick": "s8",
     "round": 1,
@@ -2261,6 +2342,7 @@
    {
     "game": 18,
     "margin_a": 4.9,
+    "p_a_beats_b": 0.6919,
     "p_pick_wins_game": 0.6919,
     "pick": "s5",
     "round": 1,
@@ -2273,6 +2355,7 @@
    {
     "game": 19,
     "margin_a": -13.0,
+    "p_a_beats_b": 0.1026,
     "p_pick_wins_game": 0.8974,
     "pick": "s13",
     "round": 1,
@@ -2285,6 +2368,7 @@
    {
     "game": 20,
     "margin_a": 15.0,
+    "p_a_beats_b": 0.9247,
     "p_pick_wins_game": 0.9364,
     "pick": "s6",
     "round": 1,
@@ -2297,6 +2381,7 @@
    {
     "game": 21,
     "margin_a": 11.0,
+    "p_a_beats_b": 0.8616,
     "p_pick_wins_game": 0.8616,
     "pick": "s3",
     "round": 1,
@@ -2309,6 +2394,7 @@
    {
     "game": 22,
     "margin_a": 10.4,
+    "p_a_beats_b": 0.8501,
     "p_pick_wins_game": 0.8501,
     "pick": "s7",
     "round": 1,
@@ -2321,6 +2407,7 @@
    {
     "game": 23,
     "margin_a": -5.3,
+    "p_a_beats_b": 0.2934,
     "p_pick_wins_game": 0.7066,
     "pick": "s15",
     "round": 1,
@@ -2333,6 +2420,7 @@
    {
     "game": 24,
     "margin_a": -3.0,
+    "p_a_beats_b": 0.3793,
     "p_pick_wins_game": 0.6207,
     "pick": "m16",
     "round": 1,
@@ -2345,6 +2433,7 @@
    {
     "game": 25,
     "margin_a": -5.0,
+    "p_a_beats_b": 0.3015,
     "p_pick_wins_game": 0.6985,
     "pick": "m9",
     "round": 1,
@@ -2357,6 +2446,7 @@
    {
     "game": 26,
     "margin_a": -8.3,
+    "p_a_beats_b": 0.2017,
     "p_pick_wins_game": 0.7983,
     "pick": "m12",
     "round": 1,
@@ -2369,6 +2459,7 @@
    {
     "game": 27,
     "margin_a": 1.5,
+    "p_a_beats_b": 0.5619,
     "p_pick_wins_game": 0.5619,
     "pick": "m4",
     "round": 1,
@@ -2381,6 +2472,7 @@
    {
     "game": 28,
     "margin_a": -14.8,
+    "p_a_beats_b": 0.0785,
     "p_pick_wins_game": 0.74,
     "pick": "m11",
     "round": 1,
@@ -2393,6 +2485,7 @@
    {
     "game": 29,
     "margin_a": -9.2,
+    "p_a_beats_b": 0.1783,
     "p_pick_wins_game": 0.8217,
     "pick": "m14",
     "round": 1,
@@ -2405,6 +2498,7 @@
    {
     "game": 30,
     "margin_a": -4.5,
+    "p_a_beats_b": 0.3219,
     "p_pick_wins_game": 0.6781,
     "pick": "m10",
     "round": 1,
@@ -2417,6 +2511,7 @@
    {
     "game": 31,
     "margin_a": -11.9,
+    "p_a_beats_b": 0.1217,
     "p_pick_wins_game": 0.8783,
     "pick": "m15",
     "round": 1,
@@ -2429,6 +2524,7 @@
    {
     "game": 0,
     "margin_a": 10.7,
+    "p_a_beats_b": 0.8569,
     "p_pick_wins_game": 0.5556,
     "pick": "e16",
     "round": 2,
@@ -2441,6 +2537,7 @@
    {
     "game": 1,
     "margin_a": 0.5,
+    "p_a_beats_b": 0.5191,
     "p_pick_wins_game": 0.5443,
     "pick": "e12",
     "round": 2,
@@ -2453,6 +2550,7 @@
    {
     "game": 2,
     "margin_a": 2.0,
+    "p_a_beats_b": 0.5829,
     "p_pick_wins_game": 0.4707,
     "pick": "e11",
     "round": 2,
@@ -2465,6 +2563,7 @@
    {
     "game": 3,
     "margin_a": -10.3,
+    "p_a_beats_b": 0.1514,
     "p_pick_wins_game": 0.8326,
     "pick": "e15",
     "round": 2,
@@ -2477,6 +2576,7 @@
    {
     "game": 4,
     "margin_a": -16.2,
+    "p_a_beats_b": 0.0633,
     "p_pick_wins_game": 0.5513,
     "pick": "w8",
     "round": 2,
@@ -2489,6 +2589,7 @@
    {
     "game": 5,
     "margin_a": -16.1,
+    "p_a_beats_b": 0.064,
     "p_pick_wins_game": 0.7893,
     "pick": "w4",
     "round": 2,
@@ -2501,6 +2602,7 @@
    {
     "game": 6,
     "margin_a": 1.6,
+    "p_a_beats_b": 0.5676,
     "p_pick_wins_game": 0.3642,
     "pick": "w11",
     "round": 2,
@@ -2513,6 +2615,7 @@
    {
     "game": 7,
     "margin_a": -5.0,
+    "p_a_beats_b": 0.3014,
     "p_pick_wins_game": 0.5761,
     "pick": "w15",
     "round": 2,
@@ -2525,6 +2628,7 @@
    {
     "game": 8,
     "margin_a": 0.2,
+    "p_a_beats_b": 0.5092,
     "p_pick_wins_game": 0.571,
     "pick": "s16",
     "round": 2,
@@ -2537,6 +2641,7 @@
    {
     "game": 9,
     "margin_a": -0.3,
+    "p_a_beats_b": 0.4894,
     "p_pick_wins_game": 0.5108,
     "pick": "s13",
     "round": 2,
@@ -2549,6 +2654,7 @@
    {
     "game": 10,
     "margin_a": 12.2,
+    "p_a_beats_b": 0.8844,
     "p_pick_wins_game": 0.8405,
     "pick": "s6",
     "round": 2,
@@ -2561,6 +2667,7 @@
    {
     "game": 11,
     "margin_a": 2.1,
+    "p_a_beats_b": 0.5855,
     "p_pick_wins_game": 0.5444,
     "pick": "s7",
     "round": 2,
@@ -2573,6 +2680,7 @@
    {
     "game": 12,
     "margin_a": -3.2,
+    "p_a_beats_b": 0.3691,
     "p_pick_wins_game": 0.4687,
     "pick": "m9",
     "round": 2,
@@ -2585,6 +2693,7 @@
    {
     "game": 13,
     "margin_a": 13.1,
+    "p_a_beats_b": 0.8993,
     "p_pick_wins_game": 0.725,
     "pick": "m12",
     "round": 2,
@@ -2597,6 +2706,7 @@
    {
     "game": 14,
     "margin_a": 5.0,
+    "p_a_beats_b": 0.6962,
     "p_pick_wins_game": 0.5438,
     "pick": "m11",
     "round": 2,
@@ -2609,6 +2719,7 @@
    {
     "game": 15,
     "margin_a": -3.5,
+    "p_a_beats_b": 0.3566,
     "p_pick_wins_game": 0.607,
     "pick": "m15",
     "round": 2,
@@ -2621,6 +2732,7 @@
    {
     "game": 0,
     "margin_a": 6.1,
+    "p_a_beats_b": 0.7331,
     "p_pick_wins_game": 0.4184,
     "pick": "e16",
     "round": 3,
@@ -2633,6 +2745,7 @@
    {
     "game": 1,
     "margin_a": -4.8,
+    "p_a_beats_b": 0.3108,
     "p_pick_wins_game": 0.6195,
     "pick": "e15",
     "round": 3,
@@ -2645,6 +2758,7 @@
    {
     "game": 2,
     "margin_a": -1.1,
+    "p_a_beats_b": 0.4534,
     "p_pick_wins_game": 0.4727,
     "pick": "w4",
     "round": 3,
@@ -2657,6 +2771,7 @@
    {
     "game": 3,
     "margin_a": -0.3,
+    "p_a_beats_b": 0.4881,
     "p_pick_wins_game": 0.3259,
     "pick": "w15",
     "round": 3,
@@ -2669,6 +2784,7 @@
    {
     "game": 4,
     "margin_a": -1.1,
+    "p_a_beats_b": 0.4558,
     "p_pick_wins_game": 0.287,
     "pick": "s13",
     "round": 3,
@@ -2681,6 +2797,7 @@
    {
     "game": 5,
     "margin_a": 1.1,
+    "p_a_beats_b": 0.5474,
     "p_pick_wins_game": 0.512,
     "pick": "s6",
     "round": 3,
@@ -2693,6 +2810,7 @@
    {
     "game": 6,
     "margin_a": -5.9,
+    "p_a_beats_b": 0.2708,
     "p_pick_wins_game": 0.5738,
     "pick": "m12",
     "round": 3,
@@ -2705,6 +2823,7 @@
    {
     "game": 7,
     "margin_a": 1.0,
+    "p_a_beats_b": 0.5416,
     "p_pick_wins_game": 0.3341,
     "pick": "m11",
     "round": 3,
@@ -2717,6 +2836,7 @@
    {
     "game": 0,
     "margin_a": -2.6,
+    "p_a_beats_b": 0.3945,
     "p_pick_wins_game": 0.4548,
     "pick": "e15",
     "round": 4,
@@ -2729,6 +2849,7 @@
    {
     "game": 1,
     "margin_a": 7.5,
+    "p_a_beats_b": 0.7776,
     "p_pick_wins_game": 0.3852,
     "pick": "w4",
     "round": 4,
@@ -2741,6 +2862,7 @@
    {
     "game": 2,
     "margin_a": -3.4,
+    "p_a_beats_b": 0.3635,
     "p_pick_wins_game": 0.3421,
     "pick": "s6",
     "round": 4,
@@ -2753,6 +2875,7 @@
    {
     "game": 3,
     "margin_a": 2.3,
+    "p_a_beats_b": 0.596,
     "p_pick_wins_game": 0.3846,
     "pick": "m12",
     "round": 4,
@@ -2765,6 +2888,7 @@
    {
     "game": 0,
     "margin_a": -3.1,
+    "p_a_beats_b": 0.3723,
     "p_pick_wins_game": 0.2782,
     "pick": "w4",
     "round": 5,
@@ -2777,6 +2901,7 @@
    {
     "game": 1,
     "margin_a": 4.3,
+    "p_a_beats_b": 0.671,
     "p_pick_wins_game": 0.2593,
     "pick": "s6",
     "round": 5,
@@ -2789,6 +2914,7 @@
    {
     "game": 0,
     "margin_a": -1.6,
+    "p_a_beats_b": 0.4341,
     "p_pick_wins_game": 0.1757,
     "pick": "s6",
     "round": 6,
@@ -2803,6 +2929,7 @@
    {
     "game": 0,
     "margin_a": -5.9,
+    "p_a_beats_b": 0.2718,
     "p_pick_wins_game": 0.3273,
     "pick": "e1",
     "round": 1,
@@ -2815,6 +2942,7 @@
    {
     "game": 1,
     "margin_a": -1.4,
+    "p_a_beats_b": 0.4438,
     "p_pick_wins_game": 0.4438,
     "pick": "e8",
     "round": 1,
@@ -2827,6 +2955,7 @@
    {
     "game": 2,
     "margin_a": -17.5,
+    "p_a_beats_b": 0.0514,
     "p_pick_wins_game": 0.0514,
     "pick": "e5",
     "round": 1,
@@ -2839,6 +2968,7 @@
    {
     "game": 3,
     "margin_a": 4.2,
+    "p_a_beats_b": 0.6665,
     "p_pick_wins_game": 0.6665,
     "pick": "e4",
     "round": 1,
@@ -2851,6 +2981,7 @@
    {
     "game": 4,
     "margin_a": -6.2,
+    "p_a_beats_b": 0.2629,
     "p_pick_wins_game": 0.2629,
     "pick": "e6",
     "round": 1,
@@ -2863,6 +2994,7 @@
    {
     "game": 5,
     "margin_a": -7.1,
+    "p_a_beats_b": 0.2347,
     "p_pick_wins_game": 0.2347,
     "pick": "e3",
     "round": 1,
@@ -2875,6 +3007,7 @@
    {
     "game": 6,
     "margin_a": -8.0,
+    "p_a_beats_b": 0.2081,
     "p_pick_wins_game": 0.2081,
     "pick": "e7",
     "round": 1,
@@ -2887,6 +3020,7 @@
    {
     "game": 7,
     "margin_a": -18.5,
+    "p_a_beats_b": 0.0438,
     "p_pick_wins_game": 0.0438,
     "pick": "e2",
     "round": 1,
@@ -2899,6 +3033,7 @@
    {
     "game": 8,
     "margin_a": -0.2,
+    "p_a_beats_b": 0.4927,
     "p_pick_wins_game": 0.3943,
     "pick": "w1",
     "round": 1,
@@ -2911,6 +3046,7 @@
    {
     "game": 9,
     "margin_a": 1.9,
+    "p_a_beats_b": 0.5783,
     "p_pick_wins_game": 0.5783,
     "pick": "w8",
     "round": 1,
@@ -2923,6 +3059,7 @@
    {
     "game": 10,
     "margin_a": 5.7,
+    "p_a_beats_b": 0.7213,
     "p_pick_wins_game": 0.7213,
     "pick": "w5",
     "round": 1,
@@ -2935,6 +3072,7 @@
    {
     "game": 11,
     "margin_a": 9.7,
+    "p_a_beats_b": 0.8338,
     "p_pick_wins_game": 0.8338,
     "pick": "w4",
     "round": 1,
@@ -2947,6 +3085,7 @@
    {
     "game": 12,
     "margin_a": -2.4,
+    "p_a_beats_b": 0.403,
     "p_pick_wins_game": 0.403,
     "pick": "w6",
     "round": 1,
@@ -2959,6 +3098,7 @@
    {
     "game": 13,
     "margin_a": -11.5,
+    "p_a_beats_b": 0.1279,
     "p_pick_wins_game": 0.1279,
     "pick": "w3",
     "round": 1,
@@ -2971,6 +3111,7 @@
    {
     "game": 14,
     "margin_a": -1.8,
+    "p_a_beats_b": 0.4243,
     "p_pick_wins_game": 0.4243,
     "pick": "w7",
     "round": 1,
@@ -2983,6 +3124,7 @@
    {
     "game": 15,
     "margin_a": -8.2,
+    "p_a_beats_b": 0.2044,
     "p_pick_wins_game": 0.2044,
     "pick": "w2",
     "round": 1,
@@ -2995,6 +3137,7 @@
    {
     "game": 16,
     "margin_a": -8.1,
+    "p_a_beats_b": 0.2047,
     "p_pick_wins_game": 0.0,
     "pick": "s1",
     "round": 1,
@@ -3007,6 +3150,7 @@
    {
     "game": 17,
     "margin_a": 6.9,
+    "p_a_beats_b": 0.7594,
     "p_pick_wins_game": 0.7594,
     "pick": "s8",
     "round": 1,
@@ -3019,6 +3163,7 @@
    {
     "game": 18,
     "margin_a": 4.9,
+    "p_a_beats_b": 0.6919,
     "p_pick_wins_game": 0.6919,
     "pick": "s5",
     "round": 1,
@@ -3031,6 +3176,7 @@
    {
     "game": 19,
     "margin_a": -13.0,
+    "p_a_beats_b": 0.1026,
     "p_pick_wins_game": 0.1026,
     "pick": "s4",
     "round": 1,
@@ -3043,6 +3189,7 @@
    {
     "game": 20,
     "margin_a": 18.8,
+    "p_a_beats_b": 0.9584,
     "p_pick_wins_game": 0.9364,
     "pick": "s6",
     "round": 1,
@@ -3055,6 +3202,7 @@
    {
     "game": 21,
     "margin_a": 11.0,
+    "p_a_beats_b": 0.8616,
     "p_pick_wins_game": 0.8616,
     "pick": "s3",
     "round": 1,
@@ -3067,6 +3215,7 @@
    {
     "game": 22,
     "margin_a": 10.4,
+    "p_a_beats_b": 0.8501,
     "p_pick_wins_game": 0.8501,
     "pick": "s7",
     "round": 1,
@@ -3079,6 +3228,7 @@
    {
     "game": 23,
     "margin_a": -5.3,
+    "p_a_beats_b": 0.2934,
     "p_pick_wins_game": 0.2934,
     "pick": "s2",
     "round": 1,
@@ -3091,6 +3241,7 @@
    {
     "game": 24,
     "margin_a": -3.0,
+    "p_a_beats_b": 0.3793,
     "p_pick_wins_game": 0.3793,
     "pick": "m1",
     "round": 1,
@@ -3103,6 +3254,7 @@
    {
     "game": 25,
     "margin_a": -5.0,
+    "p_a_beats_b": 0.3015,
     "p_pick_wins_game": 0.3015,
     "pick": "m8",
     "round": 1,
@@ -3115,6 +3267,7 @@
    {
     "game": 26,
     "margin_a": -8.3,
+    "p_a_beats_b": 0.2017,
     "p_pick_wins_game": 0.2017,
     "pick": "m5",
     "round": 1,
@@ -3127,6 +3280,7 @@
    {
     "game": 27,
     "margin_a": 1.5,
+    "p_a_beats_b": 0.5619,
     "p_pick_wins_game": 0.5619,
     "pick": "m4",
     "round": 1,
@@ -3139,6 +3293,7 @@
    {
     "game": 28,
     "margin_a": -14.8,
+    "p_a_beats_b": 0.0785,
     "p_pick_wins_game": 0.1138,
     "pick": "m6",
     "round": 1,
@@ -3151,6 +3306,7 @@
    {
     "game": 29,
     "margin_a": -9.2,
+    "p_a_beats_b": 0.1783,
     "p_pick_wins_game": 0.1783,
     "pick": "m3",
     "round": 1,
@@ -3163,6 +3319,7 @@
    {
     "game": 30,
     "margin_a": -4.5,
+    "p_a_beats_b": 0.3219,
     "p_pick_wins_game": 0.3219,
     "pick": "m7",
     "round": 1,
@@ -3175,6 +3332,7 @@
    {
     "game": 31,
     "margin_a": -11.9,
+    "p_a_beats_b": 0.1217,
     "p_pick_wins_game": 0.1217,
     "pick": "m2",
     "round": 1,
@@ -3187,6 +3345,7 @@
    {
     "game": 0,
     "margin_a": 6.2,
+    "p_a_beats_b": 0.7368,
     "p_pick_wins_game": 0.2328,
     "pick": "e1",
     "round": 2,
@@ -3199,6 +3358,7 @@
    {
     "game": 1,
     "margin_a": -17.0,
+    "p_a_beats_b": 0.0552,
     "p_pick_wins_game": 0.3364,
     "pick": "e4",
     "round": 2,
@@ -3211,6 +3371,7 @@
    {
     "game": 2,
     "margin_a": 2.9,
+    "p_a_beats_b": 0.619,
     "p_pick_wins_game": 0.0546,
     "pick": "e3",
     "round": 2,
@@ -3223,6 +3384,7 @@
    {
     "game": 3,
     "margin_a": 0.1,
+    "p_a_beats_b": 0.5059,
     "p_pick_wins_game": 0.0116,
     "pick": "e2",
     "round": 2,
@@ -3235,6 +3397,7 @@
    {
     "game": 4,
     "margin_a": -20.1,
+    "p_a_beats_b": 0.0339,
     "p_pick_wins_game": 0.0154,
     "pick": "w1",
     "round": 2,
@@ -3247,6 +3410,7 @@
    {
     "game": 5,
     "margin_a": -16.1,
+    "p_a_beats_b": 0.064,
     "p_pick_wins_game": 0.7893,
     "pick": "w4",
     "round": 2,
@@ -3259,6 +3423,7 @@
    {
     "game": 6,
     "margin_a": 10.8,
+    "p_a_beats_b": 0.858,
     "p_pick_wins_game": 0.015,
     "pick": "w3",
     "round": 2,
@@ -3271,6 +3436,7 @@
    {
     "game": 7,
     "margin_a": 1.3,
+    "p_a_beats_b": 0.5532,
     "p_pick_wins_game": 0.0827,
     "pick": "w2",
     "round": 2,
@@ -3283,6 +3449,7 @@
    {
     "game": 8,
     "margin_a": -7.9,
+    "p_a_beats_b": 0.2107,
     "p_pick_wins_game": 0.0,
     "pick": "s1",
     "round": 2,
@@ -3295,6 +3462,7 @@
    {
     "game": 9,
     "margin_a": 12.8,
+    "p_a_beats_b": 0.8934,
     "p_pick_wins_game": 0.0142,
     "pick": "s4",
     "round": 2,
@@ -3307,6 +3475,7 @@
    {
     "game": 10,
     "margin_a": 12.2,
+    "p_a_beats_b": 0.8844,
     "p_pick_wins_game": 0.1287,
     "pick": "s3",
     "round": 2,
@@ -3319,6 +3488,7 @@
    {
     "game": 11,
     "margin_a": 7.3,
+    "p_a_beats_b": 0.7728,
     "p_pick_wins_game": 0.0841,
     "pick": "s2",
     "round": 2,
@@ -3331,6 +3501,7 @@
    {
     "game": 12,
     "margin_a": -1.1,
+    "p_a_beats_b": 0.453,
     "p_pick_wins_game": 0.1216,
     "pick": "m1",
     "round": 2,
@@ -3343,6 +3514,7 @@
    {
     "game": 13,
     "margin_a": 4.9,
+    "p_a_beats_b": 0.6929,
     "p_pick_wins_game": 0.08,
     "pick": "m4",
     "round": 2,
@@ -3355,6 +3527,7 @@
    {
     "game": 14,
     "margin_a": -0.6,
+    "p_a_beats_b": 0.4737,
     "p_pick_wins_game": 0.0294,
     "pick": "m3",
     "round": 2,
@@ -3367,6 +3540,7 @@
    {
     "game": 15,
     "margin_a": 3.8,
+    "p_a_beats_b": 0.655,
     "p_pick_wins_game": 0.03,
     "pick": "m2",
     "round": 2,
@@ -3379,6 +3553,7 @@
    {
     "game": 0,
     "margin_a": 0.6,
+    "p_a_beats_b": 0.5253,
     "p_pick_wins_game": 0.1246,
     "pick": "e1",
     "round": 3,
@@ -3391,6 +3566,7 @@
    {
     "game": 1,
     "margin_a": 4.6,
+    "p_a_beats_b": 0.6836,
     "p_pick_wins_game": 0.0015,
     "pick": "e2",
     "round": 3,
@@ -3403,6 +3579,7 @@
    {
     "game": 2,
     "margin_a": -21.2,
+    "p_a_beats_b": 0.0283,
     "p_pick_wins_game": 0.001,
     "pick": "w1",
     "round": 3,
@@ -3415,6 +3592,7 @@
    {
     "game": 3,
     "margin_a": -5.3,
+    "p_a_beats_b": 0.2932,
     "p_pick_wins_game": 0.0211,
     "pick": "w2",
     "round": 3,
@@ -3427,6 +3605,7 @@
    {
     "game": 4,
     "margin_a": 3.8,
+    "p_a_beats_b": 0.6535,
     "p_pick_wins_game": 0.0,
     "pick": "s1",
     "round": 3,
@@ -3439,6 +3618,7 @@
    {
     "game": 5,
     "margin_a": -3.7,
+    "p_a_beats_b": 0.3497,
     "p_pick_wins_game": 0.0229,
     "pick": "s2",
     "round": 3,
@@ -3451,6 +3631,7 @@
    {
     "game": 6,
     "margin_a": 1.0,
+    "p_a_beats_b": 0.5423,
     "p_pick_wins_game": 0.0254,
     "pick": "m1",
     "round": 3,
@@ -3463,6 +3644,7 @@
    {
     "game": 7,
     "margin_a": -1.3,
+    "p_a_beats_b": 0.4467,
     "p_pick_wins_game": 0.0054,
     "pick": "m2",
     "round": 3,
@@ -3475,6 +3657,7 @@
    {
     "game": 0,
     "margin_a": 10.0,
+    "p_a_beats_b": 0.8415,
     "p_pick_wins_game": 0.0355,
     "pick": "e1",
     "round": 4,
@@ -3487,6 +3670,7 @@
    {
     "game": 1,
     "margin_a": -5.6,
+    "p_a_beats_b": 0.2837,
     "p_pick_wins_game": 0.0001,
     "pick": "w1",
     "round": 4,
@@ -3499,6 +3683,7 @@
    {
     "game": 2,
     "margin_a": -4.1,
+    "p_a_beats_b": 0.3363,
     "p_pick_wins_game": 0.0,
     "pick": "s1",
     "round": 4,
@@ -3511,6 +3696,7 @@
    {
     "game": 3,
     "margin_a": 3.1,
+    "p_a_beats_b": 0.6254,
     "p_pick_wins_game": 0.0058,
     "pick": "m1",
     "round": 4,
@@ -3523,6 +3709,7 @@
    {
     "game": 0,
     "margin_a": 9.6,
+    "p_a_beats_b": 0.8321,
     "p_pick_wins_game": 0.0073,
     "pick": "e1",
     "round": 5,
@@ -3535,6 +3722,7 @@
    {
     "game": 1,
     "margin_a": 3.8,
+    "p_a_beats_b": 0.6541,
     "p_pick_wins_game": 0.0005,
     "pick": "m1",
     "round": 5,
@@ -3547,6 +3735,7 @@
    {
     "game": 0,
     "margin_a": 3.2,
+    "p_a_beats_b": 0.6296,
     "p_pick_wins_game": 0.0013,
     "pick": "e1",
     "round": 6,

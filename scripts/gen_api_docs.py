@@ -149,8 +149,9 @@ Example (invented numbers):
 
 Query: optional `scoring` (six comma-separated point values, round 1 to the championship; default `10,20,40,80,160,320`) and `model`.
 `picks` has three brackets: `best_expected_points` (the consistent bracket with the most expected points), `model_favorite` and `seed_chalk`.
-Each pick also carries `score_a`, `score_b` and `margin_a`: the projected score for that game, lined up with its `team_a` and `team_b` (`null` when the
-model has no score model). `results` lists the games already played in that season (empty before the tournament), each with `round` (0 is the First Four),
+`p_pick_wins_game` is the chance the pick wins that game including the chance of reaching it (in round one it equals the head-to-head chance). `p_a_beats_b` is the head-to-head
+chance that `team_a` beats `team_b` if they meet. Each pick also carries `score_a`, `score_b` and `margin_a`: the projected score for that game, lined up with its `team_a`
+and `team_b` (`null` when the model has no score model). `results` lists the games already played in that season (empty before the tournament), each with `round` (0 is the First Four),
 `game` (the same numbering as `picks`) and `winner`, so a page can show what happened or send them to the what-if route.
 `first_round[].flagged` is true when the model gives the underdog at least 50% (`model_picks_upset`) or at least 15 points above the
 historical rate for that seed pairing (`model_above_history`). In the backtest only the first of those flags beat the base rate.

@@ -14,8 +14,8 @@ MODEL = {
 }
 TEAM_REF = {"type": "object", "required": ["id", "name"], "properties": {"id": STR, "name": {"type": ["string", "null"]}}}
 FACTOR = {"type": "object", "required": ["group", "effect"], "properties": {"group": STR, "effect": NUM, "headline": {"type": ["string", "null"]}, "a": NUM, "b": NUM}}
-PICK = {"type": "object", "required": ["round", "round_name", "game", "team_a", "team_b", "pick", "p_pick_wins_game", "score_a", "score_b", "margin_a"],
-        "properties": {"round": {"type": "integer"}, "round_name": STR, "game": {"type": "integer"}, "team_a": STR, "team_b": STR, "pick": STR, "p_pick_wins_game": NUM,
+PICK = {"type": "object", "required": ["round", "round_name", "game", "team_a", "team_b", "pick", "p_pick_wins_game", "p_a_beats_b", "score_a", "score_b", "margin_a"],
+        "properties": {"round": {"type": "integer"}, "round_name": STR, "game": {"type": "integer"}, "team_a": STR, "team_b": STR, "pick": STR, "p_pick_wins_game": NUM, "p_a_beats_b": NUM,
                        "score_a": NUM, "score_b": NUM, "margin_a": NUM}}
 PLAYED = {"type": "object", "required": ["round", "round_name", "game", "team_a", "team_b", "winner"],
           "properties": {"round": {"type": "integer"}, "round_name": STR, "game": {"type": "integer"}, "team_a": STR, "team_b": STR, "winner": STR}}

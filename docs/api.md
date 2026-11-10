@@ -242,8 +242,9 @@ Example (invented numbers):
 
 Query: optional `scoring` (six comma-separated point values, round 1 to the championship; default `10,20,40,80,160,320`) and `model`.
 `picks` has three brackets: `best_expected_points` (the consistent bracket with the most expected points), `model_favorite` and `seed_chalk`.
-Each pick also carries `score_a`, `score_b` and `margin_a`: the projected score for that game, lined up with its `team_a` and `team_b` (`null` when the
-model has no score model). `results` lists the games already played in that season (empty before the tournament), each with `round` (0 is the First Four),
+`p_pick_wins_game` is the chance the pick wins that game including the chance of reaching it (in round one it equals the head-to-head chance). `p_a_beats_b` is the head-to-head
+chance that `team_a` beats `team_b` if they meet. Each pick also carries `score_a`, `score_b` and `margin_a`: the projected score for that game, lined up with its `team_a`
+and `team_b` (`null` when the model has no score model). `results` lists the games already played in that season (empty before the tournament), each with `round` (0 is the First Four),
 `game` (the same numbering as `picks`) and `winner`, so a page can show what happened or send them to the what-if route.
 `first_round[].flagged` is true when the model gives the underdog at least 50% (`model_picks_upset`) or at least 15 points above the
 historical rate for that seed pairing (`model_above_history`). In the backtest only the first of those flags beat the base rate.
@@ -367,6 +368,7 @@ Example, trimmed to the first rows (invented numbers):
       {
         "game": 0,
         "margin_a": -5.9,
+        "p_a_beats_b": 0.2718,
         "p_pick_wins_game": 0.64,
         "pick": "e16",
         "round": 1,
@@ -379,6 +381,7 @@ Example, trimmed to the first rows (invented numbers):
       {
         "game": 1,
         "margin_a": -1.4,
+        "p_a_beats_b": 0.4438,
         "p_pick_wins_game": 0.5562,
         "pick": "e9",
         "round": 1,
@@ -393,6 +396,7 @@ Example, trimmed to the first rows (invented numbers):
       {
         "game": 0,
         "margin_a": -5.9,
+        "p_a_beats_b": 0.2718,
         "p_pick_wins_game": 0.64,
         "pick": "e16",
         "round": 1,
@@ -405,12 +409,8 @@ Example, trimmed to the first rows (invented numbers):
       {
         "game": 1,
         "margin_a": -1.4,
-        "p_pick_wins_game": 0.5562,
-        "pick": "e9",
-        "round": 1,
-        "round_name": "round of 64",
-        "score_a": 69.3,
-        "score_b
+        "p_a_beats_b": 0.4438,
+        "p_pick_wins_game": 0.55
 ```
 
 ## GET /v1/bracket/{season}/matchups?round=1
@@ -509,6 +509,7 @@ Example, locking one result (invented numbers, trimmed):
       {
         "game": 0,
         "margin_a": -5.9,
+        "p_a_beats_b": 0.2718,
         "p_pick_wins_game": 0.64,
         "pick": "e16",
         "round": 1,
@@ -523,6 +524,7 @@ Example, locking one result (invented numbers, trimmed):
       {
         "game": 0,
         "margin_a": -5.9,
+        "p_a_beats_b": 0.2718,
         "p_pick_wins_game": 0.64,
         "pick": "e16",
         "round": 1,
@@ -537,6 +539,7 @@ Example, locking one result (invented numbers, trimmed):
       {
         "game": 0,
         "margin_a": -5.9,
+        "p_a_beats_b": 0.2718,
         "p_pick_wins_game": 0.3273,
         "pick": "e1",
         "round": 1,
@@ -567,10 +570,7 @@ Example, locking one result (invented numbers, trimmed):
     },
     {
       "game": 16,
-      "round": 1,
-      "round_name": "round of 64",
-      "team_a": "s1",
-      "team_b": "s16"
+   
 ```
 
 ## GET /v1/backtest
@@ -649,7 +649,7 @@ Example, trimmed (invented numbers):
 
 ```json
 {
-  "created_at": "2026-11-10T22:21:59+00:00",
+  "created_at": "2026-11-10T22:24:28+00:00",
   "data_hash": "samplehash",
   "limits": [
     "134 tournament games in 2022 to 2023 were used to choose the design.",

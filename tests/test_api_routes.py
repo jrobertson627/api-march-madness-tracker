@@ -376,6 +376,14 @@ class PickScoreAndResultTests(Base):
                 want_a, want_b = (row.score_a, row.score_b) if g["team_a"] == lo else (row.score_b, row.score_a)
                 self.assertAlmostEqual(g["score_a"], want_a, delta=0.06)
                 self.assertAlmostEqual(g["score_b"], want_b, delta=0.06)
+        for name, rows in b["picks"].items():
+            for g in rows:
+                lo, hi = sorted((g["team_a"], g["team_b"]))
+                p_lo = pairs.loc[(lo, hi)].p_a_win
+                self.assertAlmostEqual(g["p_a_beats_b"], p_lo if g["team_a"] == lo else 1 - p_lo, delta=0.001, msg=name)
+                if g["round"] == 1 and not {g["team_a"], g["team_b"]} & {"e16", "e16b", "s11b", "s11", "w16", "w16c", "m11", "m11c"}:  # a plain first-round game
+                    chance_pick_wins = g["p_a_beats_b"] if g["pick"] == g["team_a"] else 1 - g["p_a_beats_b"]
+                    self.assertAlmostEqual(g["p_pick_wins_game"], chance_pick_wins, delta=0.002, msg=name)  # nothing to reach, so the two agree
         # the favorite is the pick, so it is also the projected winner of the game
         for g in b["picks"]["model_favorite"]:
             self.assertEqual(g["pick"] == g["team_a"], g["margin_a"] > 0)
