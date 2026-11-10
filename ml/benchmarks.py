@@ -60,9 +60,10 @@ def score_benchmark(bench: pd.DataFrame, ncaa: pd.DataFrame) -> dict:
 def compare_to_model(bench: pd.DataFrame, oof: pd.DataFrame, n: int = 10_000) -> dict:
     """Paired comparison of a model's out-of-fold predictions against the benchmark on shared games.
     `oof` needs game_date, team_a, team_b, season, p and a_win."""
-    if "team_a" not in oof:  # game_id is "season|date|team_a|team_b"
+    if "team_a" not in oof or oof["team_a"].isna().all():  # game_id is "season|date|team_a|team_b"
         parts = oof["game_id"].str.split("|", expand=True)
-        oof = oof.assign(game_date=pd.to_datetime(parts[1]), team_a=parts[2], team_b=parts[3])
+        oof = oof.assign(game_date=parts[1], team_a=parts[2], team_b=parts[3])
+    oof = oof.assign(game_date=pd.to_datetime(oof["game_date"]))  # results read from CSV carry dates as text
     m = oof.merge(bench, on=KEY, how="inner")
     if m.empty:
         return {"games": 0}

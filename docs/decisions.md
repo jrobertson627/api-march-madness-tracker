@@ -109,3 +109,20 @@ lines change the picture.
 
 Confirmed 2026-11-10: boosted trees stay the default after seeing the locked-box result. The efficiency-gap logistic
 remains the simple fallback (it exports to JSON and needs no scikit-learn in the web service).
+
+## 17. Betting lines as a benchmark (2026-11-10)
+
+Source: a table the user copied from BetIQ's custom trend tool for the 2022 to 2026 NCAA tournaments (670 rows, 334
+games with both teams in our matrix, no missing values). It is kept locally in `artifacts/lines/` (gitignored) and
+is not committed. Whether its spread is the closing line is not confirmed.
+
+Results, win-probability log loss on the 334 tournament games: lines 0.5383 (moneylines, margin removed), spread-only
+0.5417 to 0.5413. Our models on shared games: efficiency-gap baseline 0.5482 (lines better by 0.010, interval
+-0.005 to +0.024), seed logistic 0.5650 and Elo 0.5801 (both clearly worse than the lines). On 2022 to 2025 the final
+design scored 0.5562 against the lines' 0.5585 (inside the noise; those seasons were used to choose the design).
+On 2026, the one unbiased comparison, the final model scored 0.4881 against 0.4580 for the lines (lines better by
+0.030, interval -0.011 to +0.077).
+
+Reading: our best model and the market are within noise of each other on tournament games. They pick different
+winners in 24 of 267 games and their probabilities correlate at 0.96. Lines were used only to benchmark. Using them
+as a model input is a separate decision (they do not exist for later rounds before games are set).

@@ -115,6 +115,42 @@ from ml.benchmarks import load_benchmark, score_benchmark, compare_to_model
 bench = load_benchmark("lines.csv", sigma=11.0)   # estimate sigma on other seasons with estimate_sigma
 ```
 
+### Scoring a lines file you supply
+
+`ml/lines.py` reads a table in BetIQ's game-table layout and `scripts/score_lines.py` scores it. Nothing in the repo
+downloads lines, and the code never contacts any site.
+
+Columns (headers matched ignoring case, extra columns ignored, blank or `-` cells treated as missing), one row per
+team per game:
+
+| Column | Meaning |
+|---|---|
+| `Date` | Game date |
+| `Team`, `Opponent` | BetIQ short names such as `Abl Christian` or `NC A&T` |
+| `Spread` | The team's own spread, negative when it is the favorite |
+| `Total (O/U)` | Over/under |
+| `Money Line` | American odds for that team |
+| `Score` | `team-opponent`, for example `69-63` |
+
+```bash
+python scripts/export_team_names.py
+python scripts/score_lines.py path/to/lines.csv
+```
+
+- Names are matched through `BETIQ_ALIASES_RAW`. Of the 387 names on BetIQ's team list, 374 match, including all 162
+  teams that appear in our tournament matrix. The unmatched are defunct or non-D1 teams. Unmatched names are printed.
+- The two rows of a game are combined into one in the matrix's order. `p_ml` is the de-vigged moneyline probability and
+  `p_spread` comes from the spread; `p_a_win` is `p_ml` when both moneylines exist and `p_spread` otherwise.
+- The spread scale (sigma) is estimated on games that are not NCAA tournament games in the matrix, so it never sees the
+  games being scored.
+- Dates may differ by a day (late tip-offs); a pair that meets twice takes the nearer date.
+- The report gives how many tournament games had a line, the lines' log loss, and a paired comparison with the stored
+  predictions. Reading the stored 2026 predictions does not rerun the locked-box test, and nothing is tuned on it.
+- Check that the spread is the closing line before drawing conclusions. Whether BetIQ's column is the closing line is
+  not confirmed.
+- Check the source's terms of use before collecting or storing lines. BetIQ's terms bar copying content without written
+  consent and its robots.txt disallows its data endpoint.
+
 ### Matching team names
 
 Lines write school names ("UConn", "Michigan St."), the matrix uses Sports Reference ids. Export the team table once,
