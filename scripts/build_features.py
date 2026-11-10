@@ -101,22 +101,28 @@ def main() -> None:
     ap.add_argument("--cadence", default="weekly", choices=["weekly", "daily"])
     ap.add_argument("--mode", default="game", choices=["game", "bracket"])
     ap.add_argument("--min-games", type=int, default=8)
+    ap.add_argument("--tag", default="", help="suffix for the output file names, e.g. bracket -> matchups_bracket.csv")
+    ap.add_argument("--shrink-games", type=float, default=4.0, help="rating shrinkage in pseudo-games")
+    ap.add_argument("--elo-k", type=float, default=24.0)
+    ap.add_argument("--elo-carry", type=float, default=0.8)
     args = ap.parse_args()
+    sfx = f"_{args.tag}" if args.tag else ""
 
     result = build_feature_matrix(
-        args.seasons, include=args.include, cadence=args.cadence, mode=args.mode, min_games=args.min_games
+        args.seasons, include=args.include, cadence=args.cadence, mode=args.mode, min_games=args.min_games,
+        shrink_games=args.shrink_games, elo_kwargs={"k": args.elo_k, "carry": args.elo_carry},
     )
     OUT.mkdir(parents=True, exist_ok=True)
-    result["matchups"].to_csv(OUT / "matchups.csv", index=False)
-    result["team_asof"].to_csv(OUT / "team_asof.csv", index=False)
-    column_dictionary(result["team_asof"].columns, result["matchups"].columns).to_csv(OUT / "columns.csv", index=False)
+    result["matchups"].to_csv(OUT / f"matchups{sfx}.csv", index=False)
+    result["team_asof"].to_csv(OUT / f"team_asof{sfx}.csv", index=False)
+    column_dictionary(result["team_asof"].columns, result["matchups"].columns).to_csv(OUT / f"columns{sfx}.csv", index=False)
 
     buf = io.StringIO()
     with redirect_stdout(buf):
         report(result, sorted(args.seasons))
         print(f"\nwrote files to {OUT}")
     text = buf.getvalue()
-    (OUT / "report.txt").write_text(text, encoding="utf-8")
+    (OUT / f"report{sfx}.txt").write_text(text, encoding="utf-8")
     print(text)
     get_pool().close()
 

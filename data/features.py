@@ -577,16 +577,12 @@ def assemble_feature_matrix(
     return {"matchups": matchups, "team_asof": team_asof, "cutoffs": cutoffs, "report": report}
 
 
-def build_feature_matrix(
-    seasons,
-    include=GAME_GROUPS,
-    cadence: str = "weekly",
-    mode: str = "game",
-    shrink_games: float = 4.0,
-    min_games: int = DEFAULT_MIN_GAMES,
-    elo_kwargs: dict | None = None,
-) -> dict:
-    """Load from the database, then assemble. Adds `facts` to the returned dict."""
+def load_raw(seasons) -> dict:
+    """Everything the database provides, loaded once: facts, box, meta, players, prior.
+
+    Keep the result to rebuild features with different settings without
+    touching the database (see scripts/tune_features.py).
+    """
     seasons = sorted(seasons)
     box = load_box_games(seasons)
     facts = load_game_facts(seasons, box)
@@ -598,8 +594,29 @@ def build_feature_matrix(
         if s - 1 not in prior_cache:
             prior_cache[s - 1] = load_player_seasons(s - 1)
         prior[s] = prior_cache[s - 1]
-    out = assemble_feature_matrix(
-        facts, box, players, prior, meta, include, cadence, mode, shrink_games, min_games, elo_kwargs
+    return {"facts": facts, "box": box, "meta": meta, "players": players, "prior": prior}
+
+
+def build_from_raw(raw: dict, include=GAME_GROUPS, cadence: str = "weekly", mode: str = "game", shrink_games: float = 4.0,
+                   min_games: int = DEFAULT_MIN_GAMES, elo_kwargs: dict | None = None, with_players: bool = True) -> dict:
+    """Assemble from loaded data. `with_players=False` skips roster features (much faster; roster columns are NaN)."""
+    return assemble_feature_matrix(
+        raw["facts"], raw["box"], raw["players"] if with_players else {}, raw["prior"] if with_players else {}, raw["meta"],
+        include, cadence, mode, shrink_games, min_games, elo_kwargs,
     )
-    out["facts"] = facts
+
+
+def build_feature_matrix(
+    seasons,
+    include=GAME_GROUPS,
+    cadence: str = "weekly",
+    mode: str = "game",
+    shrink_games: float = 4.0,
+    min_games: int = DEFAULT_MIN_GAMES,
+    elo_kwargs: dict | None = None,
+) -> dict:
+    """Load from the database, then assemble. Adds `facts` to the returned dict."""
+    raw = load_raw(seasons)
+    out = build_from_raw(raw, include, cadence, mode, shrink_games, min_games, elo_kwargs)
+    out["facts"] = raw["facts"]
     return out
