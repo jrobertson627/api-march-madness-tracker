@@ -126,3 +126,37 @@ On 2026, the one unbiased comparison, the final model scored 0.4881 against 0.45
 Reading: our best model and the market are within noise of each other on tournament games. They pick different
 winners in 24 of 267 games and their probabilities correlate at 0.96. Lines were used only to benchmark. Using them
 as a model input is a separate decision (they do not exist for later rounds before games are set).
+
+# Phase 3 decisions
+
+## 18. Bracket simulation and its backtest (2026-11-10)
+
+Design: the bracket is rebuilt from seeds and regions (all 335 real games of 2022 to 2026 replay with no problems);
+win probabilities for every pair of teams come from the Phase 2 model as of Selection Sunday; with independent games
+the odds are computed exactly; picks are the exact best-expected-points bracket, the model favorite and seed chalk.
+Pool strategy is skipped (no public pick percentages).
+
+Backtest on 2022 to 2025 (each season scored by a model trained on the other three, never on 2026). Every team and
+round is an event (did the team reach it), 408 events a season. Mean log loss over the four seasons: coin 0.3284,
+seed-only 0.2512, efficiency gap 0.2485, final model 0.2414. The model beat the efficiency gap in all four seasons and
+the seeds in two (2024 and 2025); seeds were slightly better in 2022 and 2023.
+
+Team-strength uncertainty (tau): the best value on the grid was 0.3 and it beat tau 0 in 3 of 4 seasons, but by only
+0.0002 log loss. Choosing tau on the other seasons and scoring the held-out one (nested) was worse than tau 0 (0.2419
+against 0.2414). The rule was tightened to require the nested check as well, a change made after seeing these
+numbers, and tau stays 0 (independent games). The grid stops at 0.3 with the best value at the edge, so larger values
+were not tested.
+
+Picks, realized points with 10-20-40-80-160-320 scoring: mean over 2022 to 2025 was 740 for best expected points,
+797.5 for model favorite and 767.5 for seed chalk, although the model expected 836, 825 and 794. That is a handful of
+upsets, so no strategy is shown to be better. Upset flags: games where the model picks the upset were 8 upsets in 19
+(42%) against 25 in 102 (25%) unflagged. Games where the model is 15 points above seed history were 3 in 16 (19%), no
+better than unflagged, so that rule is not supported.
+
+Locked season 2026 (model trained on 2022 to 2025, scored once): advancement log loss coin 0.3305, seed-only 0.2104,
+efficiency gap 0.1835, final model 0.1867 (the model was 0.003 behind the efficiency gap and 0.024 ahead of the
+seeds). Realized points: seed chalk 1000, model favorite 1040, best expected points 1060. Both games the model picked
+as upsets were upsets, against 6 of 30 unflagged. The model gave the real champion, Michigan, a 14.7% title chance.
+
+Reading: the model's round-by-round odds beat seed-only odds in most seasons, and are about the same as the simple
+efficiency-gap model. Five tournaments cannot rank pick strategies or settings finely.

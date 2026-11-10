@@ -72,7 +72,8 @@ def add_derived(df: pd.DataFrame) -> pd.DataFrame:
     df["is_conf_tourney"] = (df["game_group"] == "conf_tourney").astype(int)
     f = ot_factor(df["overtimes"].fillna(0))
     for c in ("total", "score_a", "score_b"):
-        df[f"{c}_reg"] = df[c] * f
+        if c in df:  # hypothetical games (a bracket pairing) have no scores
+            df[f"{c}_reg"] = df[c] * f
     for c in ("adj_off", "adj_def", "adj_tempo", "tempo"):
         if f"{c}_a" in df and f"{c}_b" in df:
             df[f"sum_{c}"] = df[f"{c}_a"] + df[f"{c}_b"]
