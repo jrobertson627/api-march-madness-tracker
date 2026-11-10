@@ -25,6 +25,8 @@ from ml.explain import HEADLINE
 
 DEFAULT_SCORING = pick.DEFAULT_POINTS
 TOP_FACTORS = 5
+PLAYED_ROUND_NAMES = {0: "first four", **ROUND_NAMES}
+REPORT_TTL = 300.0  # seconds the backtest report is reused
 
 
 def _r(x, n=4):
@@ -79,6 +81,7 @@ class Service:
         self.pairs = LRU(2000)
         self.snapshot_lists: dict = {}   # season -> (time fetched, list)
         self.model_list = None           # (time fetched, list)
+        self.report = None               # (time fetched, backtest report)
 
     # ------------------------------------------------------------------ plumbing
 
@@ -197,6 +200,47 @@ class Service:
                 ok = False
         return {"status": "ok" if ok else "degraded", "store": ok, "active_model": active, "latest_snapshot": latest}
 
+    def teams(self, season: int, model: str | None = None) -> tuple[dict, Snapshot]:
+        """The teams that have predictions for a season, with seed and region where the team is in the tournament field."""
+        snap, stale = self._resolve(season, model)
+        table = self._teams_table(snap)
+        key = ("field", season)
+        field = self.contexts.get(key)
+        if field is None:
+            b = self._guard(self._store().bracket, season)
+            field = {} if b is None else {t.team: (int(t.seed), t.region) for t in b["teams"].itertuples()}
+            self.contexts.put(key, field)
+        rows = []
+        for t in table.itertuples():
+            seed, region = field.get(t.team, (None, None))
+            rows.append({"id": t.team, "name": None if t.name is None or (isinstance(t.name, float) and np.isnan(t.name)) else t.name, "seed": seed, "region": region})
+        rows.sort(key=lambda r: (r["name"] or r["id"]).lower())
+        notes = []
+        if snap.in_sample:
+            notes.append(f"in-sample: this model was trained on {season}")
+        if stale:
+            notes.append("served from memory: the prediction store could not be reached")
+        return {"season": season, "snapshot": _snap_json(snap), "teams": rows, "notes": notes}, snap
+
+    def backtest(self) -> dict:
+        """The newest published backtest report. Reused for a few minutes; if the store fails, the last one seen is served."""
+        hit = self.report
+        if hit and time.monotonic() - hit[0] < REPORT_TTL:
+            return hit[1]
+        try:
+            doc = self._store().backtest()
+        except ApiError:
+            raise
+        except Exception as e:
+            if hit:
+                return dict(hit[1], notes=["served from memory: the prediction store could not be reached"])
+            raise ApiError("store_unavailable", "The prediction store could not be read.", 503, {"reason": type(e).__name__})
+        if doc is None:
+            raise ApiError("backtest_not_found", "No backtest report has been published", 404)
+        body = {"model_id": doc["model_id"], "data_hash": doc["data_hash"], "created_at": doc["created_at"], **doc["report"]}
+        self.report = (time.monotonic(), body)
+        return body
+
     # ------------------------------------------------------------------ matchups
 
     def matchup(self, team_a: str, team_b: str, season: int, model: str | None = None, as_of: str | None = None) -> tuple[dict, Snapshot]:
@@ -273,11 +317,37 @@ class Service:
         c = pairs["team_b"].map(idx).to_numpy()
         P[a, c] = pairs["p_a_win"].to_numpy(float)
         P[c, a] = 1 - P[a, c]
+        # projected points: SC[i, j] is team i's score against team j, MG[i, j] the margin of i over j (NaN if the model has no score model)
+        SC = np.full((T, T), np.nan)
+        MG = np.full((T, T), np.nan)
+        SC[a, c] = pairs["score_a"].to_numpy(float)
+        SC[c, a] = pairs["score_b"].to_numpy(float)
+        MG[a, c] = pairs["margin_a"].to_numpy(float)
+        MG[c, a] = -MG[a, c]
         names = dict(zip(field["team"], field["name"].fillna(field["team"])))
         hist = {tuple(int(x) for x in k.split("-")): v for k, v in (snap.meta.get("seed_history") or {}).items()}
-        ctx = {"bracket": bracket, "P": P, "names": names, "history": hist}
+        ctx = {"bracket": bracket, "P": P, "SC": SC, "MG": MG, "names": names, "history": hist, "results": self._played(bracket, b.get("results") or [])}
         self.contexts.put(key, ctx)
         return ctx
+
+    @staticmethod
+    def _played(bracket: Bracket, raw: list) -> list:
+        """Stored results with the round and game position added, so a page can put each one on the bracket. Round 0 is the
+        First Four. Anything that names a team outside the bracket, or a winner who did not play, is dropped."""
+        idx = bracket.index
+        out = []
+        for r in raw:
+            try:
+                ta, tb, w = r["team_a"], r["team_b"], r["winner"]
+            except (KeyError, TypeError):
+                continue
+            if ta not in idx or tb not in idx or ta == tb or w not in (ta, tb):
+                continue
+            a, b = idx[ta], idx[tb]
+            rnd = Service._lca_round(bracket, a, b)
+            slot = next(k for k, s in enumerate(bracket.slots) if a in s)
+            out.append({"round": rnd, "round_name": PLAYED_ROUND_NAMES.get(rnd, f"round {rnd}"), "game": slot >> rnd, "team_a": ta, "team_b": tb, "winner": w})
+        return sorted(out, key=lambda x: (x["round"], x["game"]))
 
     @staticmethod
     def _lca_round(bracket: Bracket, a: int, b: int) -> int:
@@ -344,7 +414,8 @@ class Service:
                 for j, w in enumerate(pk.winners[r]):
                     a, b = prev[2 * j], prev[2 * j + 1]
                     rows.append({"round": r, "round_name": ROUND_NAMES.get(r, f"round {r}"), "game": j, "team_a": bracket.teams[a], "team_b": bracket.teams[b],
-                                 "pick": bracket.teams[w], "p_pick_wins_game": _r(levels.arrays[r][j, w])})
+                                 "pick": bracket.teams[w], "p_pick_wins_game": _r(levels.arrays[r][j, w]), "p_a_beats_b": _r(P[a, b]),
+                                 "score_a": _r(ctx["SC"][a, b], 1), "score_b": _r(ctx["SC"][b, a], 1), "margin_a": _r(ctx["MG"][a, b], 1)})
             out_picks[k] = rows
         first = upsets.first_round_table(bracket, exact_levels(bracket, P, fixed or None), ctx["history"]) if bracket.n_rounds == 6 else None
         first_json = []
@@ -362,7 +433,7 @@ class Service:
             notes.append("served from memory: the prediction store could not be reached")
         body = {"season": season, "snapshot": _snap_json(snap), "scoring": list(scoring), "locked_results": len(fixed), "field": field,
                 "picks": out_picks, "expected_points": {k: _r(pick.expected_points(pk, levels, sc), 1) for k, pk in picks.items()},
-                "first_round": first_json, "notes": notes}
+                "first_round": first_json, "results": ctx["results"], "notes": notes}
         if not stale:
             self.results.put(key, body)
         return body, snap

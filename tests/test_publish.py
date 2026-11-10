@@ -79,6 +79,25 @@ class BundleTests(unittest.TestCase):
         self.assertEqual(out.iloc[0]["team"], "duke")
         self.assertEqual(out.iloc[0]["values"], {"adj_em": 25.123, "elo": 1900.0})
 
+    def test_results_keep_only_games_between_teams_in_the_bracket(self):
+        pre = "www.sports-reference.com/cbb/schools/"
+        results = pd.DataFrame([(f"{pre}duke/men", f"{pre}houston/men", f"{pre}duke/men"), (f"{pre}duke/men", f"{pre}outsider/men", f"{pre}duke/men"),
+                                (f"{pre}duke/men", f"{pre}houston/men", f"{pre}someone-else/men")], columns=["team_a", "team_b", "winner"])
+        out = publish.results_json(results, [f"{pre}duke/men", f"{pre}houston/men"])
+        self.assertEqual(out, [{"team_a": "duke", "team_b": "houston", "winner": "duke"}])  # not the outsider, and not a winner who did not play
+
+    def test_a_bundle_carries_the_results(self):
+        teams, pairs = good_pairs()
+        tdf = pd.DataFrame({"team": teams, "name": teams, "values": [{}] * len(teams)})
+        field = pd.DataFrame({"team": ["t0"], "name": ["t0"], "seed": [1], "region": ["East"]})
+        b = publish.make_bundle(self.model([2022]), 2024, "2024-03-17", "selection_sunday", pairs, tdf, field, (("East", "West"), ("South", "Midwest")), {},
+                                results=[{"team_a": "t0", "team_b": "t1", "winner": "t0"}])
+        self.assertEqual(b.bracket["results"], [{"team_a": "t0", "team_b": "t1", "winner": "t0"}])
+        self.assertEqual(publish.make_bundle(self.model([2022]), 2024, "2024-03-17", "selection_sunday", pairs, tdf, field, [], {}).bracket["results"], [])
+
+    def model(self, seasons):
+        return ModelVersion("m", "m", "r", "live", seasons, "h")
+
     def test_seed_history_keys(self):
         self.assertEqual(publish.seed_history_json({(8, 9): 0.5123456}), {"8-9": 0.5123})
 

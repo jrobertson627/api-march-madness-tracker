@@ -7,6 +7,7 @@ the publisher uses. Snapshots are immutable: writing one that exists is an error
 
 from __future__ import annotations
 
+import contextlib
 import datetime as dt
 import json
 import shutil
@@ -64,9 +65,12 @@ class Store:
     def pair(self, snap: Snapshot, team_a: str, team_b: str) -> dict | None: raise NotImplementedError
     def pairs_among(self, snap: Snapshot, teams: list[str]) -> pd.DataFrame: raise NotImplementedError
     def teams(self, snap: Snapshot) -> pd.DataFrame: raise NotImplementedError
-    def bracket(self, season: int) -> dict | None: raise NotImplementedError
+    def bracket(self, season: int) -> dict | None: raise NotImplementedError   # teams, final_four, as_of, results
+    def backtest(self) -> dict | None: raise NotImplementedError   # the newest backtest report, with created_at, model_id and data_hash
     def ping(self) -> bool: raise NotImplementedError
     def write_snapshot(self, bundle: Bundle, replace: bool = False, activate: bool = False) -> dict: raise NotImplementedError
+    def write_results(self, season: int, results: list) -> dict: raise NotImplementedError
+    def write_backtest(self, report: dict, model_id: str, data_hash: str) -> dict: raise NotImplementedError
 
     def active_model(self) -> ModelVersion | None:
         return next((m for m in self.models() if m.active), None)
@@ -131,7 +135,26 @@ class FileStore(Store):
         if not p.exists():
             return None
         d = json.loads(p.read_text(encoding="utf-8"))
-        return {"teams": pd.DataFrame(d["teams"]), "final_four": d["final_four"], "as_of": d.get("as_of")}
+        return {"teams": pd.DataFrame(d["teams"]), "final_four": d["final_four"], "as_of": d.get("as_of"), "results": d.get("results", [])}
+
+    def backtest(self):
+        p = self.root / "backtest.json"
+        return json.loads(p.read_text(encoding="utf-8")) if p.exists() else None
+
+    def write_backtest(self, report, model_id, data_hash):
+        self.root.mkdir(parents=True, exist_ok=True)
+        doc = {"model_id": model_id, "data_hash": data_hash, "created_at": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"), "report": report}
+        (self.root / "backtest.json").write_text(json.dumps(doc, default=float), encoding="utf-8")
+        return {"bytes": len(json.dumps(doc, default=float))}
+
+    def write_results(self, season, results):
+        p = self.root / "brackets" / f"{season}.json"
+        if not p.exists():
+            raise FileNotFoundError(f"no bracket published for {season}")
+        d = json.loads(p.read_text(encoding="utf-8"))
+        d["results"] = list(results)
+        p.write_text(json.dumps(d, default=float), encoding="utf-8")
+        return {"season": season, "results": len(results)}
 
     def ping(self):
         return self.root.exists()
@@ -159,7 +182,8 @@ class FileStore(Store):
             (self.root / "brackets").mkdir(exist_ok=True)
             b = bundle.bracket
             (self.root / "brackets" / f"{s.season}.json").write_text(
-                json.dumps({"as_of": s.as_of, "final_four": b["final_four"], "teams": b["teams"].to_dict("records")}, default=float), encoding="utf-8")
+                json.dumps({"as_of": s.as_of, "final_four": b["final_four"], "teams": b["teams"].to_dict("records"), "results": list(b.get("results") or [])},
+                           default=float), encoding="utf-8")
         self._pairs.pop((s.model_id, s.season, s.as_of), None)
         self._teams.pop((s.model_id, s.season, s.as_of), None)
         return {"pairs": len(pairs), "teams": len(bundle.teams), "dir": str(d)}
@@ -213,11 +237,59 @@ class PostgresStore(Store):
         return pd.DataFrame(rows, columns=["team", "name", "values"])
 
     def bracket(self, season):
-        b = self._q("SELECT as_of, final_four FROM predictions.brackets WHERE season = %s", (season,))
+        b = self._q("SELECT as_of, final_four, results FROM predictions.brackets WHERE season = %s", (season,))
         if not b:
             return None
         t = self._q("SELECT team, name, seed, region FROM predictions.bracket_teams WHERE season = %s ORDER BY region, seed, team", (season,))
-        return {"teams": pd.DataFrame(t, columns=["team", "name", "seed", "region"]), "final_four": b[0]["final_four"], "as_of": _date(b[0]["as_of"])}
+        return {"teams": pd.DataFrame(t, columns=["team", "name", "seed", "region"]), "final_four": b[0]["final_four"], "as_of": _date(b[0]["as_of"]),
+                "results": b[0]["results"] or []}
+
+    def backtest(self):
+        rows = self._q("SELECT model_id, data_hash, created_at, report FROM predictions.backtest_reports ORDER BY created_at DESC, id DESC LIMIT 1")
+        if not rows:
+            return None
+        r = rows[0]
+        return {"model_id": r["model_id"], "data_hash": r["data_hash"], "created_at": _date(r["created_at"]), "report": r["report"]}
+
+    @contextlib.contextmanager
+    def _writer(self):
+        """The connection a write uses: the one given to the constructor, or a new one from PUBLISH_DATABASE_URL."""
+        if self._conn is not None:
+            yield self._conn
+            return
+        import os
+        import sys
+
+        import psycopg
+
+        from data import db  # noqa: F401  (loads .env)
+        url = os.environ.get("PUBLISH_DATABASE_URL")
+        if not url:
+            url = os.environ.get("DATABASE_URL")
+            if not url:
+                raise RuntimeError("Neither PUBLISH_DATABASE_URL nor DATABASE_URL is set")
+            print("note: PUBLISH_DATABASE_URL is not set, writing with DATABASE_URL (use a separate write credential in production)", file=sys.stderr)
+        conn = psycopg.connect(url, prepare_threshold=None, row_factory=psycopg.rows.dict_row)
+        try:
+            yield conn
+        finally:
+            conn.close()
+
+    def write_results(self, season, results):
+        from psycopg.types.json import Jsonb
+
+        with self._writer() as conn, conn.transaction():
+            cur = conn.execute("UPDATE predictions.brackets SET results = %s WHERE season = %s", (Jsonb(list(results)), season))
+            if cur.rowcount != 1:
+                raise FileNotFoundError(f"no bracket published for {season}")
+        return {"season": season, "results": len(results)}
+
+    def write_backtest(self, report, model_id, data_hash):
+        from psycopg.types.json import Jsonb
+
+        with self._writer() as conn, conn.transaction():
+            conn.execute("INSERT INTO predictions.backtest_reports (model_id, data_hash, report) VALUES (%s, %s, %s)", (model_id, data_hash, Jsonb(report)))
+        return {"bytes": len(json.dumps(report, default=float))}
 
     def ping(self):
         try:
@@ -227,22 +299,9 @@ class PostgresStore(Store):
             return False
 
     def write_snapshot(self, bundle, replace=False, activate=False):
-        import psycopg
         from psycopg.types.json import Jsonb
 
-        own = self._conn is None
-        conn = self._conn
-        if own:
-            import os
-            from data import db  # noqa: F401  (loads .env)
-            url = os.environ.get("PUBLISH_DATABASE_URL")
-            if not url:
-                url = os.environ.get("DATABASE_URL")
-                if not url:
-                    raise RuntimeError("Neither PUBLISH_DATABASE_URL nor DATABASE_URL is set")
-                print("note: PUBLISH_DATABASE_URL is not set, writing with DATABASE_URL (use a separate write credential in production)", file=__import__("sys").stderr)
-            conn = psycopg.connect(url, prepare_threshold=None, row_factory=psycopg.rows.dict_row)
-        try:
+        with self._writer() as conn:
             with conn.transaction():
                 s, m = bundle.snapshot, bundle.model
                 key = (s.model_id, s.season, s.as_of)
@@ -271,16 +330,14 @@ class PostgresStore(Store):
                 if bundle.bracket:
                     conn.execute("DELETE FROM predictions.bracket_teams WHERE season = %s", (s.season,))
                     conn.execute("DELETE FROM predictions.brackets WHERE season = %s", (s.season,))
-                    conn.execute("INSERT INTO predictions.brackets (season, as_of, final_four) VALUES (%s, %s, %s)", (s.season, s.as_of, Jsonb(bundle.bracket["final_four"])))
+                    conn.execute("INSERT INTO predictions.brackets (season, as_of, final_four, results) VALUES (%s, %s, %s, %s)",
+                                 (s.season, s.as_of, Jsonb(bundle.bracket["final_four"]), Jsonb(list(bundle.bracket.get("results") or []))))
                     for r in bundle.bracket["teams"].itertuples(index=False):
                         conn.execute("INSERT INTO predictions.bracket_teams (season, team, name, seed, region) VALUES (%s, %s, %s, %s, %s)",
                                      (s.season, r.team, _text(r.name), int(r.seed), r.region))
                 if activate:
                     conn.execute("UPDATE predictions.model_versions SET active = false WHERE active AND id <> %s", (m.id,))
                     conn.execute("UPDATE predictions.model_versions SET active = true WHERE id = %s", (m.id,))
-        finally:
-            if own:
-                conn.close()
         return {"pairs": len(bundle.pairs), "teams": len(bundle.teams)}
 
 

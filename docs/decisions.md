@@ -191,3 +191,27 @@ Neutral court only, new routes under `/v1`, the existing team routes unchanged. 
 ablation (zero a group's differences and see how far the probability moves) with the leftover shown as interaction;
 they are descriptions of the model, not causes. CORS allows only local development origins until the frontend
 address is known. Hosting stays on the free plan with cold starts accepted.
+
+# Phase 5 decisions
+
+## 23. API additions for the frontend (2026-11-10)
+
+Four additive changes, no existing field or route changes. `GET /v1/teams?season=` lists the teams with predictions for a season (seed and region where
+they are in the field), so pickers offer only teams that can be predicted. Bracket picks gain `score_a`, `score_b` and `margin_a`, so a bracket page can
+show a projected score for every game. Past seasons keep their played games in `brackets.results`, returned as `results` with the same round and game numbering as
+`picks`, so a page can show what happened and replay a tournament through the what-if route. `GET /v1/backtest` serves one report published from the
+Phase 2 and 3 result files. Gives up: the report is not live, and a new run needs a new publish. A whole tournament is 67 results (63 games and 4 First Four
+games), so the what-if limit is 67; the first limit of 63 was found too low by replaying all five real tournaments, which now end on the real champion.
+
+## 24. The backtest report keeps the scored-once season apart
+
+The report has a `selection` part (2022 to 2025, the seasons used to choose the design) and a `locked` part (2026, scored once afterwards). They are never pooled,
+because only the second comparison was not influenced by the choice of design. Paired differences carry their intervals and a flag for whether the interval
+excludes zero, and the report's `limits` text is built from the same counts, so the wording changes if a result ever stops being inside the noise. The first-round
+upset signal that held up (the model picks the underdog) and the one that did not (above seed history) are reported with their counts side by side.
+
+## 25. Write credentials for scripts
+
+The web service uses the read-only `api_reader` URL as `DATABASE_URL`. Anything that creates or changes tables or rows (`check_migration.py`,
+`check_store_postgres.py`, `apply_migration.py`, the publishers) uses `PUBLISH_DATABASE_URL` when it is set, and fails with a permission error when only the
+read-only URL is available. Migration 003 must be applied before the code that reads `brackets.results` is deployed.

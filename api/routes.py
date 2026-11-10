@@ -9,6 +9,7 @@ from api.errors import ApiError
 from api.service import Service, scoring_param, season_param, slug_param
 
 bp = Blueprint("v1", __name__, url_prefix="/v1")
+MAX_RESULTS = 67  # a whole tournament: 63 games plus the 4 First Four games
 
 
 def svc() -> Service:
@@ -35,6 +36,23 @@ def models():
 @bp.get("/seasons")
 def seasons():
     return jsonify(svc().seasons())
+
+
+@bp.get("/teams")
+def teams():
+    season = season_param(request.args.get("season"))
+    body, snap = svc().teams(season, request.args.get("model") or None)
+    return cached_json(body, snap, svc().cache_age(snap))
+
+
+@bp.get("/backtest")
+def backtest():
+    body = svc().backtest()
+    etag = make_etag(body["model_id"], body["data_hash"], body["created_at"], request.path)
+    resp = make_response("", 304) if matches(request.headers.get("If-None-Match"), etag) else make_response(jsonify(body))
+    resp.headers["ETag"] = etag
+    resp.headers["Cache-Control"] = "public, max-age=3600"
+    return resp
 
 
 @bp.get("/predict/matchup")
@@ -76,8 +94,8 @@ def bracket_odds(season):
     if not isinstance(data, dict):
         raise ApiError("bad_body", "Send a JSON object like {\"results\": [{\"team_a\": ..., \"team_b\": ..., \"winner\": ...}]}", 400)
     results = data.get("results", [])
-    if not isinstance(results, list) or len(results) > 63:
-        raise ApiError("bad_body", "results must be a list of at most 63 games", 400)
+    if not isinstance(results, list) or len(results) > MAX_RESULTS:
+        raise ApiError("bad_body", f"results must be a list of at most {MAX_RESULTS} games (63 tournament games and 4 First Four games)", 400)
     raw = data.get("scoring")
     scoring = scoring_param(",".join(str(x) for x in raw) if isinstance(raw, list) else raw)
     body, _ = svc().bracket(season, data.get("model") or None, scoring, results)

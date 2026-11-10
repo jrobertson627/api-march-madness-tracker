@@ -4,6 +4,9 @@
 
 Field tables come from api/schemas.py, so the docs cannot drift from what the tests validate. The example responses
 use the invented sample snapshot in api/sample.py. The numbers in them are made up.
+
+It also writes the complete example responses to docs/examples/*.json. The frontend copies these as test fixtures, so
+its types are checked against the real response shapes.
 """
 
 import json
@@ -16,7 +19,7 @@ sys.path.insert(0, str(ROOT))
 
 from api.app import create_app  # noqa: E402
 from api.config import Config  # noqa: E402
-from api.sample import sample_bundle  # noqa: E402
+from api.sample import sample_backtest, sample_bundle  # noqa: E402
 from api.schemas import SCHEMAS  # noqa: E402
 from api.store import FileStore  # noqa: E402
 
@@ -51,17 +54,35 @@ def table(schema: dict) -> str:
     return "\n".join(lines)
 
 
+def write_examples(responses: dict) -> None:
+    out = ROOT / "docs" / "examples"
+    out.mkdir(parents=True, exist_ok=True)
+    for name, body in responses.items():
+        (out / f"{name}.json").write_text(json.dumps(body, indent=1) + chr(10), encoding="utf-8")
+
+
 def main() -> None:
     with tempfile.TemporaryDirectory() as d:
         store = FileStore(d)
         store.write_snapshot(sample_bundle(2030, "example-model"), activate=True)
+        doc = sample_backtest("example-model")
+        store.write_backtest(doc["report"], doc["model_id"], doc["data_hash"])
         client = create_app(Config(), store=store).test_client()
+        teams = client.get("/v1/teams?season=2030").get_json()
+        teams_short = dict(teams, teams=teams["teams"][:3])
+        backtest = client.get("/v1/backtest").get_json()
+        backtest_short = dict(backtest, selection=dict(backtest["selection"], advancement=backtest["selection"]["advancement"][:2], games_scored=backtest["selection"]["games_scored"][:2],
+                                                       upset_flags=backtest["selection"]["upset_flags"][:1], picks=backtest["selection"]["picks"][:1]),
+                              locked=dict(backtest["locked"], advancement=backtest["locked"]["advancement"][:1], games_scored=backtest["locked"]["games_scored"][:1]))
         mu = client.get("/v1/predict/matchup?team_a=e1&team_b=w1&season=2030").get_json()
         br = client.get("/v1/bracket/2030").get_json()
-        br_short = dict(br, field=br["field"][:2], picks={k: v[:2] for k, v in br["picks"].items()}, first_round=br["first_round"][:2])
+        br_short = dict(br, field=br["field"][:2], picks={k: v[:2] for k, v in br["picks"].items()}, first_round=br["first_round"][:2], results=br["results"][:2])
         err = client.get("/v1/predict/matchup?team_a=e1&team_b=nobody&season=2030").get_json()
         odds = client.post("/v1/bracket/2030/odds", json={"results": [{"team_a": "s1", "team_b": "s16", "winner": "s16"}]}).get_json()
         odds_short = dict(odds, field=odds["field"][:2], picks={k: v[:1] for k, v in odds["picks"].items()}, first_round=odds["first_round"][:1])
+        write_examples({"matchup": mu, "bracket": br, "bracket_odds": odds, "teams": teams, "backtest": backtest, "error": err,
+                        "seasons": client.get("/v1/seasons").get_json(), "models": client.get("/v1/models").get_json(), "health": client.get("/health").get_json(),
+                        "round_matchups": client.get("/v1/bracket/2030/matchups?round=1").get_json()})
 
     def j(x):
         return "```json\n" + json.dumps(x, indent=2)[:2600] + "\n```"
@@ -82,6 +103,7 @@ and are only there to show the shape of each response.
 ## Conventions
 
 - Team ids are school slugs such as `michigan-state` (the same ids as `/teams`).
+- Seasons are four-digit years; the `/v1/teams`, matchup and bracket routes return `404` for a season with no published predictions.
 - Errors always look like `{{"error": {{"code", "message", "details"}}}}`. `400` is a bad parameter, `404` an unknown team, season or snapshot, `413` a body that is too large, `422` results that do not fit the bracket, `503` the prediction store is unavailable.
 - GET responses carry an `ETag` and `Cache-Control`. Send `If-None-Match` to get `304` when nothing changed.
 - Snapshots never change once published, so a response for a past season is the same tomorrow.
@@ -101,6 +123,18 @@ Model versions (with held-out metrics and the active flag), and the seasons that
 
 {table(SCHEMAS['seasons'])}
 
+## GET /v1/teams
+
+Query: `season` (required); optional `model`. The teams that have predictions for that season, sorted by name, for team pickers. `seed` and `region`
+are filled for teams in that season's tournament field and are `null` for the rest. `name` can be `null` when no display name is known; show `id` then.
+It uses the same snapshot as the matchup route, so every team listed can be used there.
+
+{table(SCHEMAS['teams'])}
+
+Example, first three teams (invented numbers):
+
+{j(teams_short)}
+
 ## GET /v1/predict/matchup
 
 Query: `team_a`, `team_b` (slugs), `season`; optional `model` (a model id) and `as_of` (YYYY-MM-DD).
@@ -115,6 +149,10 @@ Example (invented numbers):
 
 Query: optional `scoring` (six comma-separated point values, round 1 to the championship; default `10,20,40,80,160,320`) and `model`.
 `picks` has three brackets: `best_expected_points` (the consistent bracket with the most expected points), `model_favorite` and `seed_chalk`.
+`p_pick_wins_game` is the chance the pick wins that game including the chance of reaching it (in round one it equals the head-to-head chance). `p_a_beats_b` is the head-to-head
+chance that `team_a` beats `team_b` if they meet. Each pick also carries `score_a`, `score_b` and `margin_a`: the projected score for that game, lined up with its `team_a`
+and `team_b` (`null` when the model has no score model). `results` lists the games already played in that season (empty before the tournament), each with `round` (0 is the First Four),
+`game` (the same numbering as `picks`) and `winner`, so a page can show what happened or send them to the what-if route.
 `first_round[].flagged` is true when the model gives the underdog at least 50% (`model_picks_upset`) or at least 15 points above the
 historical rate for that seed pairing (`model_above_history`). In the backtest only the first of those flags beat the base rate.
 
@@ -133,12 +171,25 @@ The round-of-64 games with the model's probabilities. Only round 1 is available 
 ## POST /v1/bracket/{{season}}/odds
 
 What-if mode. Body: `{{"results": [{{"team_a": ..., "team_b": ..., "winner": ...}}], "scoring": [..six numbers..], "model": ...}}`.
-Games already played keep their real winners and the rest is recalculated. A result that cannot happen given the others returns `422`.
+Send up to 67 results: a whole tournament is 63 games and the 4 First Four games. Games already played keep their real winners and the rest is recalculated. A result that cannot happen given the others returns `422`.
 The response has the same shape as `GET /v1/bracket/{{season}}` and is not cached.
 
 Example, locking one result (invented numbers, trimmed):
 
 {j(odds_short)}
+
+## GET /v1/backtest
+
+How the model did on past tournaments, from the newest published report. It has two parts that must not be merged: `selection` (the seasons used to choose
+the design) and `locked` (the season scored once, afterwards). Lower log loss and Brier score are better. In `paired`, a negative `diff` means the model had
+the lower log loss, and `interval_excludes_zero` says whether the 95% interval rules out no difference. `limits` is plain text to show next to the numbers.
+Cached for an hour; the report only changes when a new one is published.
+
+{table(SCHEMAS['backtest'])}
+
+Example, trimmed (invented numbers):
+
+{j(backtest_short)}
 
 ## Errors
 

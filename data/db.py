@@ -42,6 +42,15 @@ def get_pool():
     return _pool
 
 
+def use_write_credential() -> bool:
+    """For migration, check and publish scripts: connect with PUBLISH_DATABASE_URL (a role that can write) instead of
+    DATABASE_URL (the web service's read-only role). Call before get_pool(). Returns True if it switched."""
+    url = os.environ.get("PUBLISH_DATABASE_URL")
+    if url:
+        os.environ["DATABASE_URL"] = url
+    return bool(url)
+
+
 def query(sql, params=None):
     with get_pool().connection() as conn:
         return conn.execute(sql, params).fetchall()

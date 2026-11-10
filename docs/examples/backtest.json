@@ -1,0 +1,428 @@
+{
+ "created_at": "2026-11-10T22:37:30+00:00",
+ "data_hash": "samplehash",
+ "limits": [
+  "134 tournament games in 2022 to 2023 were used to choose the design.",
+  "67 games in 2024 were scored once after the design was chosen. That is the only comparison the design choice did not influence.",
+  "Every paired comparison on this page has an interval that includes zero, so the differences could be noise.",
+  "Games where the model picked the upset were upsets 1 of 1 times; games with no flag, 0 of 2. The 'above seed history' flag was right 0 of 1 times and is not supported by this evidence.",
+  "Lower log loss and Brier score are better. A coin flip scores 0.693 per game.",
+  "Probabilities are for a neutral court, with team ratings frozen at Selection Sunday and games treated as independent."
+ ],
+ "locked": {
+  "advancement": [
+   {
+    "brier": 0.1,
+    "events": 408,
+    "log_loss": 0.33,
+    "method": "coin flip",
+    "season": 2024
+   },
+   {
+    "brier": 0.1,
+    "events": 408,
+    "log_loss": 0.28,
+    "method": "seed",
+    "season": 2024
+   },
+   {
+    "brier": 0.1,
+    "events": 408,
+    "log_loss": 0.27,
+    "method": "efficiency gap",
+    "season": 2024
+   },
+   {
+    "brier": 0.1,
+    "events": 408,
+    "log_loss": 0.26,
+    "method": "model",
+    "season": 2024
+   },
+   {
+    "brier": 0.1,
+    "events": 408,
+    "log_loss": 0.33,
+    "method": "coin flip",
+    "season": "all"
+   },
+   {
+    "brier": 0.1,
+    "events": 408,
+    "log_loss": 0.28,
+    "method": "seed",
+    "season": "all"
+   },
+   {
+    "brier": 0.1,
+    "events": 408,
+    "log_loss": 0.27,
+    "method": "efficiency gap",
+    "season": "all"
+   },
+   {
+    "brier": 0.1,
+    "events": 408,
+    "log_loss": 0.26,
+    "method": "model",
+    "season": "all"
+   }
+  ],
+  "games_scored": [
+   {
+    "accuracy": 0.5,
+    "brier": 0.2,
+    "log_loss": 0.693,
+    "method": "coin flip",
+    "n": 67,
+    "season": 2024
+   },
+   {
+    "accuracy": 0.7,
+    "brier": 0.2,
+    "log_loss": 0.58,
+    "method": "seed",
+    "n": 67,
+    "season": 2024
+   },
+   {
+    "accuracy": 0.69,
+    "brier": 0.2,
+    "log_loss": 0.57,
+    "method": "efficiency gap",
+    "n": 67,
+    "season": 2024
+   },
+   {
+    "accuracy": 0.7,
+    "brier": 0.2,
+    "log_loss": 0.56,
+    "method": "model",
+    "n": 67,
+    "season": 2024
+   }
+  ],
+  "paired": [
+   {
+    "baseline": "efficiency gap",
+    "candidate": "model",
+    "diff": -0.012,
+    "games": 134,
+    "high": 0.004,
+    "interval_excludes_zero": false,
+    "low": -0.03,
+    "seasons": 2,
+    "seasons_ahead": 2
+   }
+  ],
+  "picks": [
+   {
+    "expected": 760.5,
+    "realized": 520.0,
+    "season": 2024,
+    "strategy": "best expected points"
+   },
+   {
+    "expected": 745.2,
+    "realized": 580.0,
+    "season": 2024,
+    "strategy": "model favorite"
+   }
+  ],
+  "season": 2024
+ },
+ "model_id": "example-model",
+ "selection": {
+  "advancement": [
+   {
+    "brier": 0.1,
+    "events": 408,
+    "log_loss": 0.33,
+    "method": "coin flip",
+    "season": 2022
+   },
+   {
+    "brier": 0.1,
+    "events": 408,
+    "log_loss": 0.28,
+    "method": "seed",
+    "season": 2022
+   },
+   {
+    "brier": 0.1,
+    "events": 408,
+    "log_loss": 0.27,
+    "method": "efficiency gap",
+    "season": 2022
+   },
+   {
+    "brier": 0.1,
+    "events": 408,
+    "log_loss": 0.26,
+    "method": "model",
+    "season": 2022
+   },
+   {
+    "brier": 0.1,
+    "events": 408,
+    "log_loss": 0.33,
+    "method": "coin flip",
+    "season": 2023
+   },
+   {
+    "brier": 0.1,
+    "events": 408,
+    "log_loss": 0.28,
+    "method": "seed",
+    "season": 2023
+   },
+   {
+    "brier": 0.1,
+    "events": 408,
+    "log_loss": 0.27,
+    "method": "efficiency gap",
+    "season": 2023
+   },
+   {
+    "brier": 0.1,
+    "events": 408,
+    "log_loss": 0.26,
+    "method": "model",
+    "season": 2023
+   },
+   {
+    "brier": 0.1,
+    "events": 816,
+    "log_loss": 0.33,
+    "method": "coin flip",
+    "season": "all"
+   },
+   {
+    "brier": 0.1,
+    "events": 816,
+    "log_loss": 0.28,
+    "method": "seed",
+    "season": "all"
+   },
+   {
+    "brier": 0.1,
+    "events": 816,
+    "log_loss": 0.27,
+    "method": "efficiency gap",
+    "season": "all"
+   },
+   {
+    "brier": 0.1,
+    "events": 816,
+    "log_loss": 0.26,
+    "method": "model",
+    "season": "all"
+   }
+  ],
+  "games_scored": [
+   {
+    "accuracy": 0.5,
+    "brier": 0.2,
+    "log_loss": 0.693,
+    "method": "coin flip",
+    "n": 67,
+    "season": 2022
+   },
+   {
+    "accuracy": 0.5,
+    "brier": 0.2,
+    "log_loss": 0.693,
+    "method": "coin flip",
+    "n": 67,
+    "season": 2023
+   },
+   {
+    "accuracy": 0.5,
+    "brier": 0.2,
+    "log_loss": 0.693,
+    "method": "coin flip",
+    "n": 134,
+    "season": "all"
+   },
+   {
+    "accuracy": 0.7,
+    "brier": 0.2,
+    "log_loss": 0.58,
+    "method": "seed",
+    "n": 67,
+    "season": 2022
+   },
+   {
+    "accuracy": 0.7,
+    "brier": 0.2,
+    "log_loss": 0.58,
+    "method": "seed",
+    "n": 67,
+    "season": 2023
+   },
+   {
+    "accuracy": 0.7,
+    "brier": 0.2,
+    "log_loss": 0.58,
+    "method": "seed",
+    "n": 134,
+    "season": "all"
+   },
+   {
+    "accuracy": 0.69,
+    "brier": 0.2,
+    "log_loss": 0.57,
+    "method": "efficiency gap",
+    "n": 67,
+    "season": 2022
+   },
+   {
+    "accuracy": 0.69,
+    "brier": 0.2,
+    "log_loss": 0.57,
+    "method": "efficiency gap",
+    "n": 67,
+    "season": 2023
+   },
+   {
+    "accuracy": 0.69,
+    "brier": 0.2,
+    "log_loss": 0.57,
+    "method": "efficiency gap",
+    "n": 134,
+    "season": "all"
+   },
+   {
+    "accuracy": 0.7,
+    "brier": 0.2,
+    "log_loss": 0.56,
+    "method": "model",
+    "n": 67,
+    "season": 2022
+   },
+   {
+    "accuracy": 0.7,
+    "brier": 0.2,
+    "log_loss": 0.56,
+    "method": "model",
+    "n": 67,
+    "season": 2023
+   },
+   {
+    "accuracy": 0.7,
+    "brier": 0.2,
+    "log_loss": 0.56,
+    "method": "model",
+    "n": 134,
+    "season": "all"
+   }
+  ],
+  "paired": [
+   {
+    "baseline": "efficiency gap",
+    "candidate": "model",
+    "diff": -0.012,
+    "games": 134,
+    "high": 0.004,
+    "interval_excludes_zero": false,
+    "low": -0.03,
+    "seasons": 2,
+    "seasons_ahead": 2
+   }
+  ],
+  "picks": [
+   {
+    "expected": 760.5,
+    "realized": 520.0,
+    "season": 2022,
+    "strategy": "best expected points"
+   },
+   {
+    "expected": 745.2,
+    "realized": 580.0,
+    "season": 2022,
+    "strategy": "model favorite"
+   }
+  ],
+  "seasons": [
+   2022,
+   2023
+  ],
+  "upset_flags": [
+   {
+    "favorite": "e1",
+    "favorite_name": "East 1",
+    "favorite_seed": 1,
+    "model_above_history": false,
+    "model_picks_upset": false,
+    "p_underdog_model": 0.05,
+    "region": "East",
+    "season": 2022,
+    "underdog": "e16",
+    "underdog_name": "East 16",
+    "underdog_seed": 16,
+    "upset": false
+   },
+   {
+    "favorite": "e8",
+    "favorite_name": null,
+    "favorite_seed": 8,
+    "model_above_history": false,
+    "model_picks_upset": true,
+    "p_underdog_model": 0.52,
+    "region": "East",
+    "season": 2022,
+    "underdog": "e9",
+    "underdog_name": null,
+    "underdog_seed": 9,
+    "upset": true
+   },
+   {
+    "favorite": "w5",
+    "favorite_name": null,
+    "favorite_seed": 5,
+    "model_above_history": true,
+    "model_picks_upset": false,
+    "p_underdog_model": 0.3,
+    "region": "West",
+    "season": 2023,
+    "underdog": "w12",
+    "underdog_name": null,
+    "underdog_seed": 12,
+    "upset": false
+   },
+   {
+    "favorite": "w6",
+    "favorite_name": null,
+    "favorite_seed": 6,
+    "model_above_history": false,
+    "model_picks_upset": false,
+    "p_underdog_model": 0.35,
+    "region": "West",
+    "season": 2023,
+    "underdog": "w11",
+    "underdog_name": null,
+    "underdog_seed": 11,
+    "upset": false
+   }
+  ],
+  "upset_summary": {
+   "all_games": {
+    "games": 4,
+    "upsets": 1
+   },
+   "model_above_history": {
+    "games": 1,
+    "upsets": 0
+   },
+   "model_picks_upset": {
+    "games": 1,
+    "upsets": 1
+   },
+   "no_flag": {
+    "games": 2,
+    "upsets": 0
+   }
+  }
+ }
+}

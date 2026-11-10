@@ -8,7 +8,8 @@ The model runs on your machine. The web service only reads published predictions
 |---|---|---|
 | Publisher (`scripts/publish_predictions.py`) | Your machine | `PUBLISH_DATABASE_URL`, can write |
 | API (`app.py`, gunicorn) | Render | `DATABASE_URL`, read-only (`api_reader`) |
-| Tables | Supabase, schema `predictions` | `migrations/001_predictions.sql`, `002_api_reader.sql` |
+| Backtest publisher (`scripts/publish_backtest.py`) | Your machine | `PUBLISH_DATABASE_URL`, can write |
+| Tables | Supabase, schema `predictions` | `migrations/001_predictions.sql`, `002_api_reader.sql`, `003_results_and_backtest.sql` |
 
 ## First-time setup
 
@@ -51,6 +52,30 @@ The model runs on your machine. The web service only reads published predictions
    the user is usually `api_reader.<project-ref>`), `STORE=postgres`, and `CORS_ORIGINS` to the frontend's address (comma-separated).
 7. **Deploy**, then check `GET /health`: `status` should be `ok`, with the active model and latest snapshot.
 
+## Phase 5 additions: results and the backtest report
+
+Migration 003 adds `brackets.results` (the games played, so past brackets can show what happened) and the `backtest_reports` table (the report behind
+`GET /v1/backtest`). It is additive and safe to run again. **Apply it before deploying the code that reads it:** the bracket route selects
+`brackets.results`, so an API deployed first would fail on every bracket request until the column exists.
+
+The scripts that change or test the database (`check_migration.py`, `check_store_postgres.py`, `apply_migration.py`) use `PUBLISH_DATABASE_URL` when it is set and
+`DATABASE_URL` otherwise. With the read-only `api_reader` string in `DATABASE_URL` they fail with a permission error, which is the intended behavior.
+
+```bash
+python scripts/check_migration.py                       # rolled back; includes 003 and the api_reader grants on the new table
+python scripts/check_store_postgres.py                  # rolled back; includes results and the report
+python scripts/apply_migration.py migrations/003_results_and_backtest.sql
+python scripts/publish_predictions.py --results-only --seasons 2022 2023 2024 2025 2026 --to postgres --dry-run
+python scripts/publish_predictions.py --results-only --seasons 2022 2023 2024 2025 2026 --to postgres
+python scripts/publish_backtest.py --dry-run
+python scripts/publish_backtest.py --to postgres
+```
+
+`--results-only` only updates the `results` column of the existing bracket rows; no predictions are made or rewritten. Each `publish_backtest.py` run adds one
+report and the API serves the newest, so publishing again after new runs needs no other step. The report is built from the files the earlier phases wrote
+(`artifacts/models/experiments.csv`, `oof_predictions.csv` and `artifacts/bracket/backtest_select_*.csv`, `locked_2026.json`); nothing is retrained.
+Rolling back the report means deleting its newest row: `DELETE FROM predictions.backtest_reports WHERE id = (SELECT max(id) FROM predictions.backtest_reports);`.
+
 ## Environment variables
 
 | Variable | Used by | Meaning |
@@ -59,7 +84,7 @@ The model runs on your machine. The web service only reads published predictions
 | `STORE` | API | `postgres`, `files`, or `auto` (postgres when `DATABASE_URL` is set) |
 | `FILE_STORE_DIR` | API | Folder for the file store (local work), default `artifacts/predictions` |
 | `CORS_ORIGINS` | API | Allowed frontend origins; default is local development ports only |
-| `PUBLISH_DATABASE_URL` | Publisher | Write connection string |
+| `PUBLISH_DATABASE_URL` | Publisher and the migration scripts | Write connection string |
 
 ## Publishing a new model or season
 
@@ -96,4 +121,6 @@ machine-learning library, so the wait is mostly Render's. Nothing in the app wri
 - `GET /health` is `ok`.
 - `GET /v1/seasons` lists the seasons you published.
 - `GET /v1/predict/matchup?team_a=duke&team_b=houston&season=2026` returns a probability, and its `model.id` and `snapshot.in_sample` are what you expect.
+- `GET /v1/teams?season=2026` lists the teams, and `GET /v1/backtest` returns the report (a 404 with `backtest_not_found` means none was published yet).
+- `GET /v1/bracket/2026` has `results` with 67 games for a played season, and each pick has `score_a`.
 - A browser request from the frontend's origin works, and one from another origin does not.

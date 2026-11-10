@@ -1,0 +1,10 @@
+{
+ "error": {
+  "code": "unknown_team",
+  "details": {
+   "suggestions": [],
+   "team": "nobody"
+  },
+  "message": "No team 'nobody' in the 2030 predictions"
+ }
+}

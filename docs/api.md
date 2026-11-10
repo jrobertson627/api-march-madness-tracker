@@ -14,6 +14,7 @@ and are only there to show the shape of each response.
 ## Conventions
 
 - Team ids are school slugs such as `michigan-state` (the same ids as `/teams`).
+- Seasons are four-digit years; the `/v1/teams`, matchup and bracket routes return `404` for a season with no published predictions.
 - Errors always look like `{"error": {"code", "message", "details"}}`. `400` is a bad parameter, `404` an unknown team, season or snapshot, `413` a body that is too large, `422` results that do not fit the bracket, `503` the prediction store is unavailable.
 - GET responses carry an `ETag` and `Cache-Control`. Send `If-None-Match` to get `304` when nothing changed.
 - Snapshots never change once published, so a response for a past season is the same tomorrow.
@@ -57,6 +58,66 @@ Model versions (with held-out metrics and the active flag), and the seasons that
 | `seasons.snapshots.kind` | `selection_sunday` or `latest` | yes |
 | `seasons.snapshots.in_sample` | boolean | yes |
 | `seasons.snapshots.n_teams` | integer | yes |
+
+## GET /v1/teams
+
+Query: `season` (required); optional `model`. The teams that have predictions for that season, sorted by name, for team pickers. `seed` and `region`
+are filled for teams in that season's tournament field and are `null` for the rest. `name` can be `null` when no display name is known; show `id` then.
+It uses the same snapshot as the matchup route, so every team listed can be used there.
+
+| field | type | always present |
+|---|---|---|
+| `season` | integer | yes |
+| `snapshot` | object | yes |
+| `snapshot.model_id` | string | yes |
+| `snapshot.season` | integer | yes |
+| `snapshot.as_of` | string | yes |
+| `snapshot.kind` | `selection_sunday` or `latest` | yes |
+| `snapshot.in_sample` | boolean | yes |
+| `snapshot.n_teams` | integer | yes |
+| `teams` | list of object | yes |
+| `teams.id` | string | yes |
+| `teams.name` | string or null | yes |
+| `teams.seed` | integer or null | yes |
+| `teams.region` | string or null | yes |
+| `notes` | list of string | yes |
+
+Example, first three teams (invented numbers):
+
+```json
+{
+  "notes": [],
+  "season": 2030,
+  "snapshot": {
+    "as_of": "2030-03-15",
+    "in_sample": false,
+    "kind": "selection_sunday",
+    "model_id": "example-model",
+    "n_teams": 72,
+    "season": 2030
+  },
+  "teams": [
+    {
+      "id": "e1",
+      "name": "East 1",
+      "region": "East",
+      "seed": 1
+    },
+    {
+      "id": "e10",
+      "name": "East 10",
+      "region": "East",
+      "seed": 10
+    },
+    {
+      "id": "e11",
+      "name": "East 11",
+      "region": "East",
+      "seed": 11
+    }
+  ]
+}
+```
 
 ## GET /v1/predict/matchup
 
@@ -181,6 +242,10 @@ Example (invented numbers):
 
 Query: optional `scoring` (six comma-separated point values, round 1 to the championship; default `10,20,40,80,160,320`) and `model`.
 `picks` has three brackets: `best_expected_points` (the consistent bracket with the most expected points), `model_favorite` and `seed_chalk`.
+`p_pick_wins_game` is the chance the pick wins that game including the chance of reaching it (in round one it equals the head-to-head chance). `p_a_beats_b` is the head-to-head
+chance that `team_a` beats `team_b` if they meet. Each pick also carries `score_a`, `score_b` and `margin_a`: the projected score for that game, lined up with its `team_a`
+and `team_b` (`null` when the model has no score model). `results` lists the games already played in that season (empty before the tournament), each with `round` (0 is the First Four),
+`game` (the same numbering as `picks`) and `winner`, so a page can show what happened or send them to the what-if route.
 `first_round[].flagged` is true when the model gives the underdog at least 50% (`model_picks_upset`) or at least 15 points above the
 historical rate for that seed pairing (`model_above_history`). In the backtest only the first of those flags beat the base rate.
 
@@ -208,6 +273,13 @@ historical rate for that seed pairing (`model_above_history`). In the backtest o
 | `field.p_final_four` | number or null | no |
 | `field.p_championship_game` | number or null | no |
 | `field.p_champion` | number or null | yes |
+| `results` | list of object | yes |
+| `results.round` | integer | yes |
+| `results.round_name` | string | yes |
+| `results.game` | integer | yes |
+| `results.team_a` | string | yes |
+| `results.team_b` | string | yes |
+| `results.winner` | string | yes |
 | `picks` | object | yes |
 | `expected_points` | object | yes |
 | `first_round` | list of object | yes |
@@ -295,19 +367,27 @@ Example, trimmed to the first rows (invented numbers):
     "best_expected_points": [
       {
         "game": 0,
+        "margin_a": -5.9,
+        "p_a_beats_b": 0.2718,
         "p_pick_wins_game": 0.64,
         "pick": "e16",
         "round": 1,
         "round_name": "round of 64",
+        "score_a": 67.0,
+        "score_b": 73.0,
         "team_a": "e1",
         "team_b": "e16"
       },
       {
         "game": 1,
+        "margin_a": -1.4,
+        "p_a_beats_b": 0.4438,
         "p_pick_wins_game": 0.5562,
         "pick": "e9",
         "round": 1,
         "round_name": "round of 64",
+        "score_a": 69.3,
+        "score_b": 70.7,
         "team_a": "e8",
         "team_b": "e9"
       }
@@ -315,35 +395,22 @@ Example, trimmed to the first rows (invented numbers):
     "model_favorite": [
       {
         "game": 0,
+        "margin_a": -5.9,
+        "p_a_beats_b": 0.2718,
         "p_pick_wins_game": 0.64,
         "pick": "e16",
         "round": 1,
         "round_name": "round of 64",
+        "score_a": 67.0,
+        "score_b": 73.0,
         "team_a": "e1",
         "team_b": "e16"
       },
       {
         "game": 1,
-        "p_pick_wins_game": 0.5562,
-        "pick": "e9",
-        "round": 1,
-        "round_name": "round of 64",
-        "team_a": "e8",
-        "team_b": "e9"
-      }
-    ],
-    "seed_chalk": [
-      {
-        "game": 0,
-        "p_pick_wins_game": 0.3273,
-        "pick": "e1",
-        "round": 1,
-        "round_name": "round of 64",
-        "team_a": "e1",
-        "team_b": "e16"
-      },
-      {
-      
+        "margin_a": -1.4,
+        "p_a_beats_b": 0.4438,
+        "p_pick_wins_game": 0.55
 ```
 
 ## GET /v1/bracket/{season}/matchups?round=1
@@ -377,7 +444,7 @@ The round-of-64 games with the model's probabilities. Only round 1 is available 
 ## POST /v1/bracket/{season}/odds
 
 What-if mode. Body: `{"results": [{"team_a": ..., "team_b": ..., "winner": ...}], "scoring": [..six numbers..], "model": ...}`.
-Games already played keep their real winners and the rest is recalculated. A result that cannot happen given the others returns `422`.
+Send up to 67 results: a whole tournament is 63 games and the 4 First Four games. Games already played keep their real winners and the rest is recalculated. A result that cannot happen given the others returns `422`.
 The response has the same shape as `GET /v1/bracket/{season}` and is not cached.
 
 Example, locking one result (invented numbers, trimmed):
@@ -387,7 +454,7 @@ Example, locking one result (invented numbers, trimmed):
   "expected_points": {
     "best_expected_points": 840.3,
     "model_favorite": 838.8,
-    "seed_chalk": 179.5
+    "seed_chalk": 179.6
   },
   "field": [
     {
@@ -441,10 +508,14 @@ Example, locking one result (invented numbers, trimmed):
     "best_expected_points": [
       {
         "game": 0,
+        "margin_a": -5.9,
+        "p_a_beats_b": 0.2718,
         "p_pick_wins_game": 0.64,
         "pick": "e16",
         "round": 1,
         "round_name": "round of 64",
+        "score_a": 67.0,
+        "score_b": 73.0,
         "team_a": "e1",
         "team_b": "e16"
       }
@@ -452,10 +523,14 @@ Example, locking one result (invented numbers, trimmed):
     "model_favorite": [
       {
         "game": 0,
+        "margin_a": -5.9,
+        "p_a_beats_b": 0.2718,
         "p_pick_wins_game": 0.64,
         "pick": "e16",
         "round": 1,
         "round_name": "round of 64",
+        "score_a": 67.0,
+        "score_b": 73.0,
         "team_a": "e1",
         "team_b": "e16"
       }
@@ -463,33 +538,217 @@ Example, locking one result (invented numbers, trimmed):
     "seed_chalk": [
       {
         "game": 0,
+        "margin_a": -5.9,
+        "p_a_beats_b": 0.2718,
         "p_pick_wins_game": 0.3273,
         "pick": "e1",
         "round": 1,
         "round_name": "round of 64",
+        "score_a": 67.0,
+        "score_b": 73.0,
         "team_a": "e1",
         "team_b": "e16"
       }
     ]
   },
-  "scoring": [
-    10,
-    20,
-    40,
-    80,
-    160,
-    320
+  "results": [
+    {
+      "game": 1,
+      "round": 0,
+      "round_name": "first four",
+      "team_a": "e16",
+      "team_b": "e16b",
+      "winner": "e16b"
+    },
+    {
+      "game": 9,
+      "round": 1,
+      "round_name": "round of 64",
+      "team_a": "w8",
+      "team_b": "w9",
+      "winner": "w9"
+    },
+    {
+      "game": 16,
+   
+```
+
+## GET /v1/backtest
+
+How the model did on past tournaments, from the newest published report. It has two parts that must not be merged: `selection` (the seasons used to choose
+the design) and `locked` (the season scored once, afterwards). Lower log loss and Brier score are better. In `paired`, a negative `diff` means the model had
+the lower log loss, and `interval_excludes_zero` says whether the 95% interval rules out no difference. `limits` is plain text to show next to the numbers.
+Cached for an hour; the report only changes when a new one is published.
+
+| field | type | always present |
+|---|---|---|
+| `model_id` | string | yes |
+| `data_hash` | string | yes |
+| `created_at` | string | yes |
+| `limits` | list of string | yes |
+| `notes` | list of string | no |
+| `selection` | object | yes |
+| `selection.seasons` | list of integer | yes |
+| `selection.advancement` | list of object | yes |
+| `selection.advancement.season` | integer or string | yes |
+| `selection.advancement.method` | string | yes |
+| `selection.advancement.log_loss` | number or null | yes |
+| `selection.advancement.brier` | number or null | yes |
+| `selection.advancement.events` | integer | yes |
+| `selection.games_scored` | list of object | yes |
+| `selection.games_scored.season` | integer or string | yes |
+| `selection.games_scored.method` | string | yes |
+| `selection.games_scored.n` | integer | yes |
+| `selection.games_scored.log_loss` | number or null | yes |
+| `selection.games_scored.brier` | number or null | yes |
+| `selection.games_scored.accuracy` | number or null | yes |
+| `selection.picks` | list of object | yes |
+| `selection.picks.season` | integer | yes |
+| `selection.picks.strategy` | string | yes |
+| `selection.picks.realized` | number or null | yes |
+| `selection.picks.expected` | number or null | yes |
+| `selection.upset_flags` | list of object | yes |
+| `selection.upset_flags.season` | integer | yes |
+| `selection.upset_flags.region` | string | yes |
+| `selection.upset_flags.favorite` | string | yes |
+| `selection.upset_flags.favorite_name` | string or null | no |
+| `selection.upset_flags.underdog` | string | yes |
+| `selection.upset_flags.underdog_name` | string or null | no |
+| `selection.upset_flags.favorite_seed` | integer | yes |
+| `selection.upset_flags.underdog_seed` | integer | yes |
+| `selection.upset_flags.p_underdog_model` | number or null | yes |
+| `selection.upset_flags.model_picks_upset` | boolean | yes |
+| `selection.upset_flags.model_above_history` | boolean | yes |
+| `selection.upset_flags.upset` | boolean | yes |
+| `selection.upset_summary` | object | yes |
+| `selection.upset_summary.all_games` | object | yes |
+| `selection.upset_summary.all_games.games` | integer | yes |
+| `selection.upset_summary.all_games.upsets` | integer | yes |
+| `selection.upset_summary.model_picks_upset` | object | yes |
+| `selection.upset_summary.model_picks_upset.games` | integer | yes |
+| `selection.upset_summary.model_picks_upset.upsets` | integer | yes |
+| `selection.upset_summary.model_above_history` | object | yes |
+| `selection.upset_summary.model_above_history.games` | integer | yes |
+| `selection.upset_summary.model_above_history.upsets` | integer | yes |
+| `selection.upset_summary.no_flag` | object | yes |
+| `selection.upset_summary.no_flag.games` | integer | yes |
+| `selection.upset_summary.no_flag.upsets` | integer | yes |
+| `selection.paired` | list of object | yes |
+| `selection.paired.candidate` | string | yes |
+| `selection.paired.baseline` | string | yes |
+| `selection.paired.games` | integer | yes |
+| `selection.paired.diff` | number or null | yes |
+| `selection.paired.low` | number or null | yes |
+| `selection.paired.high` | number or null | yes |
+| `selection.paired.seasons_ahead` | integer | yes |
+| `selection.paired.seasons` | integer | yes |
+| `selection.paired.interval_excludes_zero` | boolean | yes |
+| `locked` | one of null/object | yes |
+
+Example, trimmed (invented numbers):
+
+```json
+{
+  "created_at": "2026-11-10T22:37:30+00:00",
+  "data_hash": "samplehash",
+  "limits": [
+    "134 tournament games in 2022 to 2023 were used to choose the design.",
+    "67 games in 2024 were scored once after the design was chosen. That is the only comparison the design choice did not influence.",
+    "Every paired comparison on this page has an interval that includes zero, so the differences could be noise.",
+    "Games where the model picked the upset were upsets 1 of 1 times; games with no flag, 0 of 2. The 'above seed history' flag was right 0 of 1 times and is not supported by this evidence.",
+    "Lower log loss and Brier score are better. A coin flip scores 0.693 per game.",
+    "Probabilities are for a neutral court, with team ratings frozen at Selection Sunday and games treated as independent."
   ],
-  "season": 2030,
-  "snapshot": {
-    "as_of": "2030-03-15",
-    "in_sample": false,
-    "kind": "selection_sunday",
-    "model_id": "example-model",
-    "n_teams": 72,
-    "season": 2030
-  }
-}
+  "locked": {
+    "advancement": [
+      {
+        "brier": 0.1,
+        "events": 408,
+        "log_loss": 0.33,
+        "method": "coin flip",
+        "season": 2024
+      }
+    ],
+    "games_scored": [
+      {
+        "accuracy": 0.5,
+        "brier": 0.2,
+        "log_loss": 0.693,
+        "method": "coin flip",
+        "n": 67,
+        "season": 2024
+      }
+    ],
+    "paired": [
+      {
+        "baseline": "efficiency gap",
+        "candidate": "model",
+        "diff": -0.012,
+        "games": 134,
+        "high": 0.004,
+        "interval_excludes_zero": false,
+        "low": -0.03,
+        "seasons": 2,
+        "seasons_ahead": 2
+      }
+    ],
+    "picks": [
+      {
+        "expected": 760.5,
+        "realized": 520.0,
+        "season": 2024,
+        "strategy": "best expected points"
+      },
+      {
+        "expected": 745.2,
+        "realized": 580.0,
+        "season": 2024,
+        "strategy": "model favorite"
+      }
+    ],
+    "season": 2024
+  },
+  "model_id": "example-model",
+  "selection": {
+    "advancement": [
+      {
+        "brier": 0.1,
+        "events": 408,
+        "log_loss": 0.33,
+        "method": "coin flip",
+        "season": 2022
+      },
+      {
+        "brier": 0.1,
+        "events": 408,
+        "log_loss": 0.28,
+        "method": "seed",
+        "season": 2022
+      }
+    ],
+    "games_scored": [
+      {
+        "accuracy": 0.5,
+        "brier": 0.2,
+        "log_loss": 0.693,
+        "method": "coin flip",
+        "n": 67,
+        "season": 2022
+      },
+      {
+        "accuracy": 0.5,
+        "brier": 0.2,
+        "log_loss": 0.693,
+        "method": "coin flip",
+        "n": 67,
+        "season": 2023
+      }
+    ],
+    "paired": [
+      {
+        "baseline": "efficiency gap",
+        "candidate": "model",
+    
 ```
 
 ## Errors

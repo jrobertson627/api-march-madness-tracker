@@ -4,7 +4,7 @@
 
 Inside one transaction that is always rolled back: apply 001_predictions.sql, write a small invented snapshot through
 PostgresStore, read it back through the same store, and compare every answer with FileStore on the same data. Then
-roll back. Uses DATABASE_URL. Nothing is committed.
+roll back. Uses PUBLISH_DATABASE_URL if set (it must be able to create objects), otherwise DATABASE_URL. Nothing is committed.
 """
 
 import sys
@@ -18,7 +18,7 @@ import numpy as np  # noqa: E402
 
 from api.sample import sample_bundle  # noqa: E402
 from api.store import FileStore, PostgresStore  # noqa: E402
-from data.db import get_pool  # noqa: E402
+from data.db import get_pool, use_write_credential  # noqa: E402
 
 
 class Rollback(Exception):
@@ -30,6 +30,8 @@ def main() -> None:
     bundle.bracket["teams"].loc[bundle.bracket["teams"]["team"] == "e1", "name"] = np.nan  # a team with no display name
     bundle.teams.loc[bundle.teams["team"] == "e1", "name"] = np.nan
     results = []
+    if use_write_credential():
+        print("using PUBLISH_DATABASE_URL (a write credential)")
     pool = get_pool()
     with pool.connection() as conn:
         existed = bool(conn.execute("SELECT 1 FROM information_schema.schemata WHERE schema_name = 'predictions'").fetchone())
@@ -43,6 +45,7 @@ def main() -> None:
             try:
                 with conn.transaction():
                     conn.execute((ROOT / "migrations" / "001_predictions.sql").read_text(encoding="utf-8"))  # harmless if already applied
+                    conn.execute((ROOT / "migrations" / "003_results_and_backtest.sql").read_text(encoding="utf-8"))
                     if existed:  # the real tables are in use, so give the check its own model id and keep real rows out of its way
                         conn.execute("UPDATE predictions.model_versions SET active = false WHERE active")
                     pg = PostgresStore(conn)
@@ -77,6 +80,23 @@ def main() -> None:
                     results.append(("a missing name stays null, not the text NaN", "ok" if miss is None or (miss != miss) else f"FAILED: {miss!r}"))
                     results.append(("unknown pair is None", "ok" if pg.pair(psnap, "e1", "nobody") is None else "FAILED"))
                     results.append(("ping", "ok" if pg.ping() else "FAILED"))
+
+                    results.append(("results written with the bracket equal the file store's", "ok" if pb["results"] == fb["results"] and len(pb["results"]) == 3 else f"FAILED: {pb['results']} vs {fb['results']}"))
+                    one = [{"team_a": "s1", "team_b": "s16", "winner": "s16"}]
+                    pg.write_results(2030, one)
+                    results.append(("write_results replaces the results", "ok" if pg.bracket(2030)["results"] == one else "FAILED"))
+                    try:
+                        with conn.transaction():
+                            pg.write_results(1999, one)
+                        results.append(("write_results for an unknown season refused", "FAILED: no error"))
+                    except FileNotFoundError:
+                        results.append(("write_results for an unknown season refused", "ok"))
+                    report = {"limits": ["x"], "selection": {"seasons": [2022]}, "locked": None}
+                    results.append(("no backtest report before one is written", "ok" if pg.backtest() is None or existed else "FAILED"))
+                    pg.write_backtest(report, "check-model", "h1")
+                    pg.write_backtest(dict(report, limits=["y"]), "check-model", "h2")
+                    got = pg.backtest()
+                    results.append(("the newest backtest report is returned", "ok" if got and got["report"]["limits"] == ["y"] and got["data_hash"] == "h2" and got["model_id"] == "check-model" else f"FAILED: {got}"))
                     raise Rollback()
             except Rollback:
                 pass

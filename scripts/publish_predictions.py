@@ -38,11 +38,22 @@ NAMES = ROOT / "artifacts" / "models" / "team_names.csv"
 POOL = (2022, 2023, 2024, 2025)
 
 
+def season_bracket(season, meta, ncaa, names):
+    """The bracket field, Final Four pairing and played results of a season, from the matrix files. Slugs are used in the output."""
+    field_ids = meta[(meta["season"] == season) & meta["ncaa_seed"].notna()][["team", "ncaa_seed", "ncaa_region"]].rename(columns={"ncaa_seed": "seed", "ncaa_region": "region"})
+    results = ncaa[ncaa["season"] == season][["team_a", "team_b", "round", "winner"]]
+    bracket = Bracket.from_results(field_ids, results)
+    field = publish.field_table(pd.DataFrame({"team": bracket.teams, "seed": bracket.seed, "region": bracket.region}), names)
+    final_four = ((bracket.regions[0], bracket.regions[1]), (bracket.regions[2], bracket.regions[3]))
+    return bracket, field, final_four, publish.results_json(results, bracket.teams)
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
-    g = ap.add_mutually_exclusive_group(required=True)
+    g = ap.add_mutually_exclusive_group()
     g.add_argument("--backtest", action="store_true")
     g.add_argument("--live", metavar="MODEL_DIR")
+    ap.add_argument("--results-only", action="store_true", help="only write the played tournament results of each season (no predictions are made)")
     ap.add_argument("--seasons", nargs="+", type=int, required=True)
     ap.add_argument("--to", choices=["files", "postgres"], default="files")
     ap.add_argument("--out", default=str(ROOT / "artifacts" / "predictions"))
@@ -50,6 +61,8 @@ def main() -> None:
     ap.add_argument("--replace", action="store_true", help="overwrite a snapshot that already exists")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
+    if not args.results_only and not (args.backtest or args.live):
+        ap.error("choose --backtest, --live MODEL_DIR or --results-only")
 
     df = load_matchups(MATRIX_PATH)
     all_games = load_matchups(MATRIX_PATH, trainable_only=False)
@@ -61,6 +74,14 @@ def main() -> None:
     meta = pd.read_csv(META)
     names = dict(zip(pd.read_csv(NAMES)["team"], pd.read_csv(NAMES)["display_name"]))
     store = FileStore(args.out) if args.to == "files" else PostgresStore()
+
+    if args.results_only:
+        for season in sorted(args.seasons):
+            _, _, _, played = season_bracket(season, meta, ncaa, names)
+            print(f"{season}: {len(played)} played games", "(dry run)" if args.dry_run else "")
+            if not args.dry_run:
+                print("  wrote", store.write_results(season, played))
+        return
 
     live = Predictor.load(args.live) if args.live else None
     for season in sorted(args.seasons):
@@ -81,14 +102,10 @@ def main() -> None:
         if problems:
             sys.exit(f"{season}: not publishing, problems found: {problems}")
 
-        field_ids = meta[(meta["season"] == season) & meta["ncaa_seed"].notna()][["team", "ncaa_seed", "ncaa_region"]].rename(columns={"ncaa_seed": "seed", "ncaa_region": "region"})
-        results = ncaa[ncaa["season"] == season][["team_a", "team_b", "round", "winner"]]
-        bracket = Bracket.from_results(field_ids, results)
-        field = publish.field_table(pd.DataFrame({"team": bracket.teams, "seed": bracket.seed, "region": bracket.region}), names)
-        final_four = ((bracket.regions[0], bracket.regions[1]), (bracket.regions[2], bracket.regions[3]))
+        bracket, field, final_four, played = season_bracket(season, meta, ncaa, names)
         history = upsets.seed_history(ncaa[ncaa["season"] != season])
         ta_rows = ta[(ta["season"] == season) & (ta["as_of"] == as_of)]
-        bundle = publish.make_bundle(model, season, as_of, "selection_sunday", pairs, publish.team_rows(ta_rows, names), field, final_four, history)
+        bundle = publish.make_bundle(model, season, as_of, "selection_sunday", pairs, publish.team_rows(ta_rows, names), field, final_four, history, results=played)
         print(publish.size_report(bundle), "| checks passed")
         if args.dry_run:
             continue
