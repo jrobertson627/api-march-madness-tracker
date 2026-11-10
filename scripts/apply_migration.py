@@ -2,7 +2,7 @@
 
     python scripts/apply_migration.py migrations/001_predictions.sql
 
-Uses DATABASE_URL (a role that can create schemas). The file is applied in one transaction, so it either all
+Uses PUBLISH_DATABASE_URL if set, otherwise DATABASE_URL; the role must be able to create schemas and tables. The file is applied in one transaction, so it either all
 happens or none of it does. Afterwards it prints the tables in the predictions schema and confirms that no table in
 any other schema was added, removed or had its row security setting changed. Test a migration first with
 scripts/check_migration.py, which always rolls back.
@@ -14,7 +14,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from data.db import get_pool  # noqa: E402
+from data.db import get_pool, use_write_credential  # noqa: E402
 
 OTHER = """
 SELECT n.nspname AS schema, c.relname AS name, c.relkind AS kind, c.relrowsecurity AS rls
@@ -29,6 +29,8 @@ def main() -> None:
         sys.exit("usage: python scripts/apply_migration.py migrations/001_predictions.sql")
     path = Path(sys.argv[1])
     sql = path.read_text(encoding="utf-8")
+    if use_write_credential():
+        print("using PUBLISH_DATABASE_URL (a write credential)")
     pool = get_pool()
     with pool.connection() as conn:
         before = conn.execute(OTHER).fetchall()

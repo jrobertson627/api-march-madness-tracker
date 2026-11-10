@@ -81,6 +81,31 @@ class FileStoreTests(unittest.TestCase):
         active = [m.id for m in self.store.models() if m.active]
         self.assertEqual(active, ["second"])
 
+    def test_results_are_stored_with_the_bracket_and_can_be_replaced(self):
+        self.store.write_snapshot(self.bundle)
+        self.assertEqual(len(self.store.bracket(2030)["results"]), 3)
+        info = self.store.write_results(2030, [{"team_a": "s1", "team_b": "s16", "winner": "s16"}])
+        self.assertEqual(info, {"season": 2030, "results": 1})
+        self.assertEqual(self.store.bracket(2030)["results"], [{"team_a": "s1", "team_b": "s16", "winner": "s16"}])
+        self.assertEqual(len(self.store.bracket(2030)["teams"]), 68)  # the rest of the bracket is untouched
+        with self.assertRaises(FileNotFoundError):
+            self.store.write_results(1999, [])
+
+    def test_a_bracket_without_results_reads_as_an_empty_list(self):
+        bundle = sample_bundle()
+        del bundle.bracket["results"]
+        self.store.write_snapshot(bundle)
+        self.assertEqual(self.store.bracket(2030)["results"], [])
+
+    def test_the_backtest_report_round_trips_and_the_newest_wins(self):
+        self.assertIsNone(self.store.backtest())
+        self.store.write_backtest({"limits": ["one"]}, "m1", "h1")
+        first = self.store.backtest()
+        self.assertEqual((first["model_id"], first["data_hash"], first["report"]), ("m1", "h1", {"limits": ["one"]}))
+        self.assertTrue(first["created_at"])
+        self.store.write_backtest({"limits": ["two"]}, "m1", "h2")
+        self.assertEqual(self.store.backtest()["report"], {"limits": ["two"]})
+
     def test_empty_store(self):
         empty = FileStore(Path(self.dir.name) / "nothing")
         self.assertEqual(empty.models(), [])

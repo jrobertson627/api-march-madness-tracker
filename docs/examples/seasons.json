@@ -1,0 +1,17 @@
+{
+ "seasons": [
+  {
+   "season": 2030,
+   "snapshots": [
+    {
+     "as_of": "2030-03-15",
+     "in_sample": false,
+     "kind": "selection_sunday",
+     "model_id": "example-model",
+     "n_teams": 72,
+     "season": 2030
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,446 @@
+{
+ "notes": [],
+ "season": 2030,
+ "snapshot": {
+  "as_of": "2030-03-15",
+  "in_sample": false,
+  "kind": "selection_sunday",
+  "model_id": "example-model",
+  "n_teams": 72,
+  "season": 2030
+ },
+ "teams": [
+  {
+   "id": "e1",
+   "name": "East 1",
+   "region": "East",
+   "seed": 1
+  },
+  {
+   "id": "e10",
+   "name": "East 10",
+   "region": "East",
+   "seed": 10
+  },
+  {
+   "id": "e11",
+   "name": "East 11",
+   "region": "East",
+   "seed": 11
+  },
+  {
+   "id": "e12",
+   "name": "East 12",
+   "region": "East",
+   "seed": 12
+  },
+  {
+   "id": "e13",
+   "name": "East 13",
+   "region": "East",
+   "seed": 13
+  },
+  {
+   "id": "e14",
+   "name": "East 14",
+   "region": "East",
+   "seed": 14
+  },
+  {
+   "id": "e15",
+   "name": "East 15",
+   "region": "East",
+   "seed": 15
+  },
+  {
+   "id": "e16",
+   "name": "East 16",
+   "region": "East",
+   "seed": 16
+  },
+  {
+   "id": "e16b",
+   "name": "East 16b",
+   "region": "East",
+   "seed": 16
+  },
+  {
+   "id": "e2",
+   "name": "East 2",
+   "region": "East",
+   "seed": 2
+  },
+  {
+   "id": "e3",
+   "name": "East 3",
+   "region": "East",
+   "seed": 3
+  },
+  {
+   "id": "e4",
+   "name": "East 4",
+   "region": "East",
+   "seed": 4
+  },
+  {
+   "id": "e5",
+   "name": "East 5",
+   "region": "East",
+   "seed": 5
+  },
+  {
+   "id": "e6",
+   "name": "East 6",
+   "region": "East",
+   "seed": 6
+  },
+  {
+   "id": "e7",
+   "name": "East 7",
+   "region": "East",
+   "seed": 7
+  },
+  {
+   "id": "e8",
+   "name": "East 8",
+   "region": "East",
+   "seed": 8
+  },
+  {
+   "id": "e9",
+   "name": "East 9",
+   "region": "East",
+   "seed": 9
+  },
+  {
+   "id": "x0",
+   "name": "Extra 0",
+   "region": null,
+   "seed": null
+  },
+  {
+   "id": "x1",
+   "name": "Extra 1",
+   "region": null,
+   "seed": null
+  },
+  {
+   "id": "x2",
+   "name": "Extra 2",
+   "region": null,
+   "seed": null
+  },
+  {
+   "id": "x3",
+   "name": "Extra 3",
+   "region": null,
+   "seed": null
+  },
+  {
+   "id": "m1",
+   "name": "Midwest 1",
+   "region": "Midwest",
+   "seed": 1
+  },
+  {
+   "id": "m10",
+   "name": "Midwest 10",
+   "region": "Midwest",
+   "seed": 10
+  },
+  {
+   "id": "m11",
+   "name": "Midwest 11",
+   "region": "Midwest",
+   "seed": 11
+  },
+  {
+   "id": "m11c",
+   "name": "Midwest 11c",
+   "region": "Midwest",
+   "seed": 11
+  },
+  {
+   "id": "m12",
+   "name": "Midwest 12",
+   "region": "Midwest",
+   "seed": 12
+  },
+  {
+   "id": "m13",
+   "name": "Midwest 13",
+   "region": "Midwest",
+   "seed": 13
+  },
+  {
+   "id": "m14",
+   "name": "Midwest 14",
+   "region": "Midwest",
+   "seed": 14
+  },
+  {
+   "id": "m15",
+   "name": "Midwest 15",
+   "region": "Midwest",
+   "seed": 15
+  },
+  {
+   "id": "m16",
+   "name": "Midwest 16",
+   "region": "Midwest",
+   "seed": 16
+  },
+  {
+   "id": "m2",
+   "name": "Midwest 2",
+   "region": "Midwest",
+   "seed": 2
+  },
+  {
+   "id": "m3",
+   "name": "Midwest 3",
+   "region": "Midwest",
+   "seed": 3
+  },
+  {
+   "id": "m4",
+   "name": "Midwest 4",
+   "region": "Midwest",
+   "seed": 4
+  },
+  {
+   "id": "m5",
+   "name": "Midwest 5",
+   "region": "Midwest",
+   "seed": 5
+  },
+  {
+   "id": "m6",
+   "name": "Midwest 6",
+   "region": "Midwest",
+   "seed": 6
+  },
+  {
+   "id": "m7",
+   "name": "Midwest 7",
+   "region": "Midwest",
+   "seed": 7
+  },
+  {
+   "id": "m8",
+   "name": "Midwest 8",
+   "region": "Midwest",
+   "seed": 8
+  },
+  {
+   "id": "m9",
+   "name": "Midwest 9",
+   "region": "Midwest",
+   "seed": 9
+  },
+  {
+   "id": "s1",
+   "name": "South 1",
+   "region": "South",
+   "seed": 1
+  },
+  {
+   "id": "s10",
+   "name": "South 10",
+   "region": "South",
+   "seed": 10
+  },
+  {
+   "id": "s11",
+   "name": "South 11",
+   "region": "South",
+   "seed": 11
+  },
+  {
+   "id": "s11b",
+   "name": "South 11b",
+   "region": "South",
+   "seed": 11
+  },
+  {
+   "id": "s12",
+   "name": "South 12",
+   "region": "South",
+   "seed": 12
+  },
+  {
+   "id": "s13",
+   "name": "South 13",
+   "region": "South",
+   "seed": 13
+  },
+  {
+   "id": "s14",
+   "name": "South 14",
+   "region": "South",
+   "seed": 14
+  },
+  {
+   "id": "s15",
+   "name": "South 15",
+   "region": "South",
+   "seed": 15
+  },
+  {
+   "id": "s16",
+   "name": "South 16",
+   "region": "South",
+   "seed": 16
+  },
+  {
+   "id": "s2",
+   "name": "South 2",
+   "region": "South",
+   "seed": 2
+  },
+  {
+   "id": "s3",
+   "name": "South 3",
+   "region": "South",
+   "seed": 3
+  },
+  {
+   "id": "s4",
+   "name": "South 4",
+   "region": "South",
+   "seed": 4
+  },
+  {
+   "id": "s5",
+   "name": "South 5",
+   "region": "South",
+   "seed": 5
+  },
+  {
+   "id": "s6",
+   "name": "South 6",
+   "region": "South",
+   "seed": 6
+  },
+  {
+   "id": "s7",
+   "name": "South 7",
+   "region": "South",
+   "seed": 7
+  },
+  {
+   "id": "s8",
+   "name": "South 8",
+   "region": "South",
+   "seed": 8
+  },
+  {
+   "id": "s9",
+   "name": "South 9",
+   "region": "South",
+   "seed": 9
+  },
+  {
+   "id": "w1",
+   "name": "West 1",
+   "region": "West",
+   "seed": 1
+  },
+  {
+   "id": "w10",
+   "name": "West 10",
+   "region": "West",
+   "seed": 10
+  },
+  {
+   "id": "w11",
+   "name": "West 11",
+   "region": "West",
+   "seed": 11
+  },
+  {
+   "id": "w12",
+   "name": "West 12",
+   "region": "West",
+   "seed": 12
+  },
+  {
+   "id": "w13",
+   "name": "West 13",
+   "region": "West",
+   "seed": 13
+  },
+  {
+   "id": "w14",
+   "name": "West 14",
+   "region": "West",
+   "seed": 14
+  },
+  {
+   "id": "w15",
+   "name": "West 15",
+   "region": "West",
+   "seed": 15
+  },
+  {
+   "id": "w16",
+   "name": "West 16",
+   "region": "West",
+   "seed": 16
+  },
+  {
+   "id": "w16c",
+   "name": "West 16c",
+   "region": "West",
+   "seed": 16
+  },
+  {
+   "id": "w2",
+   "name": "West 2",
+   "region": "West",
+   "seed": 2
+  },
+  {
+   "id": "w3",
+   "name": "West 3",
+   "region": "West",
+   "seed": 3
+  },
+  {
+   "id": "w4",
+   "name": "West 4",
+   "region": "West",
+   "seed": 4
+  },
+  {
+   "id": "w5",
+   "name": "West 5",
+   "region": "West",
+   "seed": 5
+  },
+  {
+   "id": "w6",
+   "name": "West 6",
+   "region": "West",
+   "seed": 6
+  },
+  {
+   "id": "w7",
+   "name": "West 7",
+   "region": "West",
+   "seed": 7
+  },
+  {
+   "id": "w8",
+   "name": "West 8",
+   "region": "West",
+   "seed": 8
+  },
+  {
+   "id": "w9",
+   "name": "West 9",
+   "region": "West",
+   "seed": 9
+  }
+ ]
+}

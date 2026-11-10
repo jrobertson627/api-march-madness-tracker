@@ -7,7 +7,7 @@ import numpy as np
 
 from api.app import create_app
 from api.config import Config
-from api.sample import sample_bundle
+from api.sample import sample_backtest, sample_bundle
 from api.schemas import SCHEMAS
 from api.store import FileStore, Store
 from bracket.simulate import exact_levels
@@ -331,6 +331,174 @@ class StaleServingTests(unittest.TestCase):
         finally:
             Flaky.down = False
             d.cleanup()
+
+
+class TeamsTests(Base):
+    def test_the_team_list_matches_the_snapshot(self):
+        r = self.get(f"/v1/teams?season={SEASON}")
+        self.assertEqual(r.status_code, 200)
+        b = r.get_json()
+        validate(b, "teams")
+        self.assertEqual(len(b["teams"]), b["snapshot"]["n_teams"])
+        by = {t["id"]: t for t in b["teams"]}
+        self.assertEqual((by["e1"]["seed"], by["e1"]["region"]), (1, "East"))
+        self.assertEqual((by["x0"]["seed"], by["x0"]["region"]), (None, None))  # a team outside the tournament field
+        self.assertEqual(sum(t["seed"] is not None for t in b["teams"]), 68)
+        names = [(t["name"] or t["id"]).lower() for t in b["teams"]]
+        self.assertEqual(names, sorted(names))
+        self.assertEqual(b["snapshot"]["model_id"], "out-of-sample")
+
+    def test_the_in_sample_model_can_be_asked_for_and_is_noted(self):
+        b = self.get(f"/v1/teams?season={SEASON}&model=in-sample").get_json()
+        self.assertTrue(any("in-sample" in n for n in b["notes"]))
+
+    def test_errors(self):
+        for url, status, code in ((f"/v1/teams", 400, "bad_parameter"), ("/v1/teams?season=abc", 400, "bad_parameter"), ("/v1/teams?season=1999", 404, "snapshot_not_found")):
+            with self.subTest(url=url):
+                r = self.get(url)
+                self.assertEqual((r.status_code, r.get_json()["error"]["code"]), (status, code))
+
+    def test_etag_and_not_modified(self):
+        r = self.get(f"/v1/teams?season={SEASON}")
+        again = self.get(f"/v1/teams?season={SEASON}", headers={"If-None-Match": r.headers["ETag"]})
+        self.assertEqual(again.status_code, 304)
+
+
+class PickScoreAndResultTests(Base):
+    def test_every_pick_has_scores_that_match_the_stored_pair(self):
+        b = self.get(f"/v1/bracket/{SEASON}").get_json()
+        pairs = self.bundle.pairs.set_index(["team_a", "team_b"])
+        for name, rows in b["picks"].items():
+            for g in rows:
+                self.assertAlmostEqual(g["score_a"] - g["score_b"], g["margin_a"], delta=0.11, msg=name)
+                lo, hi = sorted((g["team_a"], g["team_b"]))
+                row = pairs.loc[(lo, hi)]
+                want_a, want_b = (row.score_a, row.score_b) if g["team_a"] == lo else (row.score_b, row.score_a)
+                self.assertAlmostEqual(g["score_a"], want_a, delta=0.06)
+                self.assertAlmostEqual(g["score_b"], want_b, delta=0.06)
+        # the favorite is the pick, so it is also the projected winner of the game
+        for g in b["picks"]["model_favorite"]:
+            self.assertEqual(g["pick"] == g["team_a"], g["margin_a"] > 0)
+
+    def test_scores_are_null_when_the_model_has_no_score_model(self):
+        d = tempfile.TemporaryDirectory()
+        try:
+            bundle = sample_bundle(SEASON, "no-scores", seed=7)
+            bundle.pairs[["margin_a", "total", "score_a", "score_b"]] = np.nan
+            store = FileStore(d.name)
+            store.write_snapshot(bundle, activate=True)
+            b = create_app(Config(), store=store).test_client().get(f"/v1/bracket/{SEASON}").get_json()
+            validate(b, "bracket")
+            self.assertTrue(all(g["score_a"] is None and g["margin_a"] is None for g in b["picks"]["model_favorite"]))
+        finally:
+            d.cleanup()
+
+    def test_results_come_back_with_round_and_game(self):
+        b = self.get(f"/v1/bracket/{SEASON}").get_json()
+        by = {(r["team_a"], r["team_b"]): r for r in b["results"]}
+        first_four = by[("e16", "e16b")]
+        self.assertEqual((first_four["round"], first_four["round_name"]), (0, "first four"))
+        south = by[("s1", "s16")]
+        self.assertEqual((south["round"], south["winner"]), (1, "s1"))
+        game = next(g for g in b["picks"]["model_favorite"] if {g["team_a"], g["team_b"]} >= {"s1"} and g["round"] == 1)
+        self.assertEqual(south["game"], game["game"])  # same numbering as the picks
+        self.assertEqual([(r["round"], r["game"]) for r in b["results"]], sorted((r["round"], r["game"]) for r in b["results"]))
+
+    def test_a_season_with_no_results_returns_an_empty_list(self):
+        d = tempfile.TemporaryDirectory()
+        try:
+            bundle = sample_bundle(SEASON, "m", seed=8)
+            bundle.bracket["results"] = []
+            store = FileStore(d.name)
+            store.write_snapshot(bundle, activate=True)
+            b = create_app(Config(), store=store).test_client().get(f"/v1/bracket/{SEASON}").get_json()
+            validate(b, "bracket")
+            self.assertEqual(b["results"], [])
+        finally:
+            d.cleanup()
+
+    def test_the_returned_results_can_be_locked_as_they_are(self):
+        b = self.get(f"/v1/bracket/{SEASON}").get_json()
+        r = self.client.post(f"/v1/bracket/{SEASON}/odds", json={"results": [{k: x[k] for k in ("team_a", "team_b", "winner")} for x in b["results"]]})
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.get_json()["locked_results"], len(b["results"]))
+
+    def test_a_whole_tournament_can_be_posted_but_not_more(self):
+        ok = self.client.post(f"/v1/bracket/{SEASON}/odds", json={"results": []})
+        self.assertEqual(ok.status_code, 200)
+        too_many = [{"team_a": "e1", "team_b": "e2", "winner": "e1"}] * 68
+        r = self.client.post(f"/v1/bracket/{SEASON}/odds", json={"results": too_many})
+        self.assertEqual((r.status_code, r.get_json()["error"]["code"]), (400, "bad_body"))
+
+
+class BacktestTests(unittest.TestCase):
+    def setUp(self):
+        self.dir = tempfile.TemporaryDirectory()
+        self.store = FileStore(self.dir.name)
+        self.app = create_app(Config(), store=self.store)
+        self.client = self.app.test_client()
+
+    def tearDown(self):
+        self.dir.cleanup()
+
+    def publish(self):
+        doc = sample_backtest()
+        self.store.write_backtest(doc["report"], doc["model_id"], doc["data_hash"])
+        return doc
+
+    def test_no_report_is_a_404_with_the_standard_error(self):
+        r = self.client.get("/v1/backtest")
+        self.assertEqual((r.status_code, r.get_json()["error"]["code"]), (404, "backtest_not_found"))
+        validate(r.get_json(), "error")
+
+    def test_the_report_validates_and_keeps_the_two_parts_apart(self):
+        self.publish()
+        r = self.client.get("/v1/backtest")
+        self.assertEqual(r.status_code, 200)
+        b = r.get_json()
+        validate(b, "backtest")
+        self.assertEqual(b["locked"]["season"], 2024)
+        self.assertNotIn(b["locked"]["season"], b["selection"]["seasons"])  # the scored-once season is never among the selection seasons
+        self.assertFalse(any(row["season"] == b["locked"]["season"] for row in b["selection"]["advancement"] + b["selection"]["games_scored"]))
+        self.assertIn("max-age", r.headers["Cache-Control"])
+
+    def test_etag_and_not_modified(self):
+        self.publish()
+        r = self.client.get("/v1/backtest")
+        again = self.client.get("/v1/backtest", headers={"If-None-Match": r.headers["ETag"]})
+        self.assertEqual(again.status_code, 304)
+
+    def test_a_newer_report_replaces_the_old_one_after_the_cache_expires(self):
+        self.publish()
+        first = self.client.get("/v1/backtest").get_json()
+        doc = sample_backtest()
+        doc["report"]["limits"] = ["a newer limit"]
+        self.store.write_backtest(doc["report"], doc["model_id"], "newerhash")
+        with mock.patch("api.service.REPORT_TTL", 0):
+            second = self.client.get("/v1/backtest").get_json()
+        self.assertEqual(first["data_hash"], "samplehash")
+        self.assertEqual((second["data_hash"], second["limits"]), ("newerhash", ["a newer limit"]))
+
+    def test_a_store_that_goes_down_still_serves_the_last_report(self):
+        self.publish()
+        self.client.get("/v1/backtest")
+
+        def boom():
+            raise ConnectionError("db down")
+
+        with mock.patch("api.service.REPORT_TTL", 0), mock.patch.object(self.store, "backtest", boom):
+            r = self.client.get("/v1/backtest")
+        self.assertEqual(r.status_code, 200)
+        self.assertTrue(any("memory" in n for n in r.get_json()["notes"]))
+        validate(r.get_json(), "backtest")
+
+    def test_without_a_report_and_a_broken_store_it_is_a_503(self):
+        def boom():
+            raise ConnectionError("db down")
+
+        with mock.patch.object(self.store, "backtest", boom):
+            r = self.client.get("/v1/backtest")
+        self.assertEqual((r.status_code, r.get_json()["error"]["code"]), (503, "store_unavailable"))
 
 
 if __name__ == "__main__":

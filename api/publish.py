@@ -72,6 +72,17 @@ def field_table(teams: pd.DataFrame, names: dict) -> pd.DataFrame:
     return t[["team", "name", "seed", "region"]]
 
 
+def results_json(results: pd.DataFrame, known) -> list:
+    """Played tournament games as [{team_a, team_b, winner}] in slugs, for the games between teams in the bracket.
+    `results` needs team_a, team_b and winner (matrix ids); `known` is the set of those ids that are in the bracket."""
+    known = set(known)
+    out = []
+    for r in results.itertuples():
+        if r.team_a in known and r.team_b in known and r.winner in (r.team_a, r.team_b):
+            out.append({"team_a": slug_of(r.team_a), "team_b": slug_of(r.team_b), "winner": slug_of(r.winner)})
+    return out
+
+
 def team_rows(team_asof_rows: pd.DataFrame, names: dict) -> pd.DataFrame:
     rows = []
     for r in team_asof_rows.to_dict("records"):
@@ -100,11 +111,11 @@ def pair_predictions(predictor, team_asof: pd.DataFrame, season: int, as_of, exp
 
 
 def make_bundle(model: ModelVersion, season: int, as_of, kind: str, pairs: pd.DataFrame, teams: pd.DataFrame, field: pd.DataFrame | None,
-                final_four, seed_history: dict, notes: list | None = None) -> Bundle:
+                final_four, seed_history: dict, notes: list | None = None, results: list | None = None) -> Bundle:
     in_sample = season in model.training_seasons
     snap = Snapshot(model.id, season, str(pd.Timestamp(as_of).date()), kind, in_sample, len(teams),
                     {"seed_history": seed_history_json(seed_history), "notes": notes or []})
-    bracket = None if field is None else {"teams": field, "final_four": [list(p) for p in final_four]}
+    bracket = None if field is None else {"teams": field, "final_four": [list(p) for p in final_four], "results": list(results or [])}
     return Bundle(model, snap, pairs, teams, bracket)
 
 
