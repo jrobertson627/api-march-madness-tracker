@@ -1,33 +1,10 @@
+"""Entry point. `gunicorn app:app` in production, `python app.py` for local development."""
+
 import os
 
-from flask import Flask, jsonify, request
-from flask_cors import CORS
+from api.app import create_app
 
-from data import teams
-
-app = Flask(__name__)
-CORS(app)
-
-
-@app.route("/health")
-def health():
-    return jsonify({"status": "ok"})
-
-
-@app.route("/teams")
-def get_teams():
-    season = request.args.get("season", type=int) or teams.SEASON
-    return jsonify(teams.list_teams(season))
-
-
-@app.route("/teams/<team_id>/stats")
-def get_team_stats(team_id):
-    season = request.args.get("season", type=int) or teams.SEASON
-    team = teams.get_team_stats(team_id, season)
-    if team is None:
-        return jsonify({"error": "not found"}), 404
-    return jsonify(team)
-
+app = create_app()
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
