@@ -160,3 +160,34 @@ as upsets were upsets, against 6 of 30 unflagged. The model gave the real champi
 
 Reading: the model's round-by-round odds beat seed-only odds in most seasons, and are about the same as the simple
 efficiency-gap model. Five tournaments cannot rank pick strategies or settings finely.
+
+# Phase 4 decisions
+
+## 19. Publish, then serve (2026-11-10)
+
+The model runs offline. A publisher script writes every pair of teams (win probability, projected scores, factor effects)
+for a snapshot into new tables, and the web API only reads them. Reasons: the free Render plan spins down after 15
+idle minutes and has an ephemeral filesystem, importing scikit-learn alone takes about 1.5 seconds, and the bracket
+odds, picks and what-if results need only numpy and take under a millisecond from stored pair probabilities.
+Gives up: answers are as fresh as the last publish, and there are no arbitrary inputs (other dates, other venues).
+
+## 20. Tables and roles
+
+A new `predictions` schema, separate from the scraper's tables, with row level security on and no access for the
+public Supabase roles. The web service connects as a read-only `api_reader` role that you create yourself, so the
+password never passes through the code or the chat. The role needs a read-only row policy on six scraper tables the
+existing `/teams` routes read; that is the only change to existing tables. Migrations are tested with
+`scripts/check_migration.py` and `scripts/check_store_postgres.py`, which always roll back.
+
+## 21. History and honesty in the responses
+
+Past seasons are published from models that did not train on them (the Phase 3 backtest models; 2026 from the model
+trained on 2022 to 2025). The saved live model is also published for 2026 and marked in-sample. The API prefers an
+out-of-sample snapshot, and every response says which model, which snapshot date and whether it is in-sample.
+
+## 22. Scope
+
+Neutral court only, new routes under `/v1`, the existing team routes unchanged. Factor effects come from group
+ablation (zero a group's differences and see how far the probability moves) with the leftover shown as interaction;
+they are descriptions of the model, not causes. CORS allows only local development origins until the frontend
+address is known. Hosting stays on the free plan with cold starts accepted.

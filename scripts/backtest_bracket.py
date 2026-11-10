@@ -15,7 +15,6 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-import joblib  # noqa: E402
 import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 
@@ -26,7 +25,7 @@ from bracket.simulate import exact_levels  # noqa: E402
 from data.db import get_pool  # noqa: E402
 from data.snapshots import load_team_meta  # noqa: E402
 from ml.dataset import MATRIX_PATH, data_stamp, load_matchups  # noqa: E402
-from ml.experiment import fit_components  # noqa: E402
+from ml.fitcache import fitted_predictor  # noqa: E402
 from ml.predictor import Predictor  # noqa: E402
 from ml.sets import FINAL_NAME, find  # noqa: E402
 
@@ -61,20 +60,6 @@ def load_tournaments(matrix_hash: str) -> dict:
         teams = meta[(meta["season"] == s) & meta["ncaa_seed"].notna()][["team", "ncaa_seed", "ncaa_region"]].rename(columns={"ncaa_seed": "seed", "ncaa_region": "region"})
         out[s] = build_tournament(s, teams, ncaa[ncaa["season"] == s][["team_a", "team_b", "round", "winner"]])
     return out, ncaa
-
-
-def fitted_predictor(name: str, df: pd.DataFrame, train_seasons, matrix_hash: str) -> Predictor:
-    """Fit a Phase 2 configuration on the given seasons only (cached on disk)."""
-    cfg = find(name)
-    key = f"{cfg.run_id()}_{matrix_hash}_{'-'.join(map(str, train_seasons))}.joblib"
-    path = CACHE / key
-    CACHE.mkdir(parents=True, exist_ok=True)
-    if path.exists():
-        return Predictor(joblib.load(path), {})
-    idx = np.flatnonzero(df["season"].isin(list(train_seasons)).to_numpy())
-    fitted = fit_components(cfg, df, idx)
-    joblib.dump(fitted, path)
-    return Predictor(fitted, {})
 
 
 def season_probabilities(season: int, t: Tournament, df, ta, ncaa, matrix_hash: str, train_seasons) -> dict:
