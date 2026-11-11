@@ -1,6 +1,7 @@
 {
  "seasons": [
   {
+   "has_bracket": true,
    "season": 2030,
    "snapshots": [
     {

@@ -51,6 +51,7 @@ Model versions (with held-out metrics and the active flag), and the seasons that
 |---|---|---|
 | `seasons` | list of object | yes |
 | `seasons.season` | integer | yes |
+| `seasons.has_bracket` | boolean | yes |
 | `seasons.snapshots` | list of object | yes |
 | `seasons.snapshots.model_id` | string | yes |
 | `seasons.snapshots.season` | integer | yes |

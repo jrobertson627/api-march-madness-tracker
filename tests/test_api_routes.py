@@ -62,6 +62,23 @@ class HealthAndListTests(Base):
         validate(s, "seasons")
         self.assertEqual(s["seasons"][0]["season"], SEASON)
         self.assertEqual(len(s["seasons"][0]["snapshots"]), 2)
+        self.assertTrue(s["seasons"][0]["has_bracket"])
+
+    def test_a_season_in_progress_has_predictions_but_no_bracket(self):
+        with tempfile.TemporaryDirectory() as d:
+            store = FileStore(d)
+            store.write_snapshot(sample_bundle(2030, "m", in_sample=False), activate=True)
+            live = sample_bundle(2031, "m", kind="latest", as_of="2031-01-12")
+            live.bracket = None  # before Selection Sunday there is no field
+            store.write_snapshot(live)
+            client = create_app(Config(), store=store).test_client()
+            body = client.get("/v1/seasons").get_json()
+            validate(body, "seasons")
+            self.assertEqual({s["season"]: s["has_bracket"] for s in body["seasons"]}, {2030: True, 2031: False})
+            self.assertEqual(body["seasons"][1]["snapshots"][0]["kind"], "latest")
+            missing = client.get("/v1/bracket/2031")  # brackets use only the Selection Sunday snapshot, so a season with just a live one has none
+            self.assertEqual((missing.status_code, missing.get_json()["error"]["code"]), (404, "snapshot_not_found"))
+            self.assertEqual(client.get("/v1/predict/matchup?team_a=e1&team_b=w1&season=2031").status_code, 200)  # the pages that need no bracket still work
 
     def test_request_id_and_cors(self):
         r = self.get("/health", headers={"Origin": "http://localhost:3000"})

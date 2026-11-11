@@ -182,10 +182,12 @@ class Service:
 
     def seasons(self) -> dict:
         snaps = self._guard(self._store().snapshots)
+        with_bracket = self._guard(self._store().bracket_seasons)
         out = {}
         for s in snaps:
             out.setdefault(s.season, []).append(_snap_json(s))
-        return {"seasons": [{"season": k, "snapshots": v} for k, v in sorted(out.items())]}
+        # has_bracket: a season in progress has predictions but no field until Selection Sunday, and /v1/bracket answers 404 for it
+        return {"seasons": [{"season": k, "has_bracket": k in with_bracket, "snapshots": v} for k, v in sorted(out.items())]}
 
     def health(self) -> dict:
         ok = bool(self.store and self.store.ping())
