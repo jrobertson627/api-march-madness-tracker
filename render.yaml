@@ -3,6 +3,9 @@ services:
     name: api-march-madness-tracker
     env: python
     plan: free
+    # Deploy only after the GitHub Actions checks pass (.github/workflows/ci.yml). The Python version comes from .python-version
+    # and the package versions from constraints.txt, which requirements.txt includes.
+    autoDeployTrigger: checksPass
     buildCommand: pip install -r requirements.txt
     # One worker with threads, so the in-memory caches are shared. A free instance has little CPU.
     startCommand: gunicorn app:app --workers 1 --threads 4 --timeout 60 --bind 0.0.0.0:$PORT

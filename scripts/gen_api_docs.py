@@ -71,6 +71,7 @@ def main() -> None:
         teams = client.get("/v1/teams?season=2030").get_json()
         teams_short = dict(teams, teams=teams["teams"][:3])
         backtest = client.get("/v1/backtest").get_json()
+        backtest["created_at"] = "2026-01-01T00:00:00+00:00"  # the store stamps the time of the run, which would change the docs every time CI regenerates them
         backtest_short = dict(backtest, selection=dict(backtest["selection"], advancement=backtest["selection"]["advancement"][:2], games_scored=backtest["selection"]["games_scored"][:2],
                                                        upset_flags=backtest["selection"]["upset_flags"][:1], picks=backtest["selection"]["picks"][:1]),
                               locked=dict(backtest["locked"], advancement=backtest["locked"]["advancement"][:1], games_scored=backtest["locked"]["games_scored"][:1]))

@@ -140,6 +140,27 @@ class MatchupLeakageTests(unittest.TestCase):
         m = run(facts, box, meta)["matchups"]
         self.assertTrue((m["as_of"] < m["game_date"]).all())
 
+    def test_adding_games_after_a_date_does_not_change_earlier_features(self):
+        """The live season grows week by week. A row built before more games arrived must equal the same row built after.
+
+        The tournament games stay in both worlds, because the build takes Selection Sunday from them (a season with no
+        tournament games yet cannot be built at all, see p6-21). Only the games in the weeks between `cut` and March differ.
+        """
+        facts, box, meta = make_world()
+        full = run(facts, box, meta)["matchups"].set_index("game_id")
+
+        cut = T("2026-02-01")
+        dropped = (lambda f: (f["game_date"] > cut) & (f["game_date"] <= T("2026-03-10")))
+        short_box = box[~dropped(box)]
+        short_facts = facts[~dropped(facts)]
+        short = run(short_facts, short_box, meta)["matchups"].set_index("game_id")
+
+        early = short.index[short["game_date"] <= cut]
+        self.assertGreater(len(early), 20)
+        self.assertTrue(set(early) <= set(full.index))
+        cols = feature_cols(full)
+        pd.testing.assert_frame_equal(short.loc[early, cols], full.loc[early, cols])
+
 
 class TournamentAsOfTests(unittest.TestCase):
     def setUp(self):

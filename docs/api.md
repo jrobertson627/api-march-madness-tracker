@@ -649,7 +649,7 @@ Example, trimmed (invented numbers):
 
 ```json
 {
-  "created_at": "2026-11-10T22:37:30+00:00",
+  "created_at": "2026-01-01T00:00:00+00:00",
   "data_hash": "samplehash",
   "limits": [
     "134 tournament games in 2022 to 2023 were used to choose the design.",

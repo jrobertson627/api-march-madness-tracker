@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    name: Tests (everything, with scikit-learn)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version-file: .python-version
+          cache: pip
+          cache-dependency-path: |
+            requirements*.txt
+            constraints.txt
+      - run: pip install -r requirements-train.txt -r requirements-dev.txt
+      # Includes the leakage tests (test_asof, test_features, test_snapshots). None of them reads artifacts/ or a database.
+      - run: python -m unittest discover -s tests
+
+  api-only:
+    name: API without scikit-learn
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version-file: .python-version
+          cache: pip
+          cache-dependency-path: |
+            requirements*.txt
+            constraints.txt
+      # Only what Render installs (requirements.txt) plus jsonschema for the contract tests.
+      # The API must never need scikit-learn, scipy or matplotlib: Render does not install them.
+      - run: pip install -r requirements.txt jsonschema
+      - run: python -c "import app"
+      - run: python -m unittest tests.test_api_routes tests.test_api_store tests.test_publish tests.test_backtest
+
+  docs:
+    name: Generated docs are current
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version-file: .python-version
+          cache: pip
+          cache-dependency-path: |
+            requirements*.txt
+            constraints.txt
+      - run: pip install -r requirements.txt jsonschema
+      # docs/api.md and docs/examples/*.json come from the schemas and the sample data. A stale copy fails here.
+      - run: python scripts/gen_api_docs.py
+      - run: git diff --exit-code -- docs
