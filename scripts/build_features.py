@@ -105,12 +105,13 @@ def main() -> None:
     ap.add_argument("--shrink-games", type=float, default=4.0, help="rating shrinkage in pseudo-games")
     ap.add_argument("--elo-k", type=float, default=24.0)
     ap.add_argument("--elo-carry", type=float, default=0.8)
+    ap.add_argument("--through", default=None, help="ignore games after this date (YYYY-MM-DD), to leave out a day still being played")
     args = ap.parse_args()
     sfx = f"_{args.tag}" if args.tag else ""
 
     result = build_feature_matrix(
         args.seasons, include=args.include, cadence=args.cadence, mode=args.mode, min_games=args.min_games,
-        shrink_games=args.shrink_games, elo_kwargs={"k": args.elo_k, "carry": args.elo_carry},
+        shrink_games=args.shrink_games, elo_kwargs={"k": args.elo_k, "carry": args.elo_carry}, through=args.through,
     )
     OUT.mkdir(parents=True, exist_ok=True)
     result["matchups"].to_csv(OUT / f"matchups{sfx}.csv", index=False)

@@ -34,6 +34,15 @@ A full build takes about two minutes, most of it loading from the database.
 - **Bracket mode.** NCAA games use Selection Sunday, for simulating a bracket before it is played (Phase 3).
 - **Selection Sunday is always built**, so the bracket-time snapshot is in `team_asof.csv` in either mode.
 - Games before the first grid date (the first week of the season) are dropped and counted in the report.
+- **A season in progress** has no tournament games yet, so no Selection Sunday and no seed for any team. Its grid is every
+  Sunday from the first game through the newest game, plus the newest game's date, and that last date is always built.
+  A team_asof row includes games on its as-of date, so the last date sees every game played so far. Such a season has no
+  entry in `cutoffs`.
+- **`--through YYYY-MM-DD`** ignores games after that date, so a run can leave out a day still being played. A build
+  with `--through` equals a build on data that stops there (`tests/test_features.py`, `SeasonInProgressTests`).
+- Checked on the real data (2026-11-10): rebuilding 2022 to 2026 with 2026 cut at 1 February gave 24,655 rows up to that
+  date, and all 154 numeric columns equal the full build's. Features for an earlier date do not change when later games
+  arrive.
 
 ## Leakage policy
 

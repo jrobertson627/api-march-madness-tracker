@@ -30,6 +30,16 @@ class AsOfGridTests(unittest.TestCase):
         grid = asof_grid("2025-11-03", self.cutoff, "2025-11-09", cadence="daily")
         self.assertEqual(len(grid), 7)
 
+    def test_a_season_in_progress_has_no_cutoff_and_ends_on_its_newest_game(self):
+        grid = asof_grid("2025-11-03", None, "2026-01-14")  # a Wednesday
+        self.assertEqual(grid[0], T("2025-11-09"))
+        self.assertTrue(all(d.weekday() == 6 for d in grid[:-1]))
+        self.assertEqual(grid[-1], T("2026-01-14"))
+        sunday = asof_grid("2025-11-03", None, "2026-01-11")  # newest game on a Sunday: no duplicate
+        self.assertEqual(sunday[-1], T("2026-01-11"))
+        self.assertEqual(len(sunday), len(set(sunday)))
+        self.assertEqual(len(asof_grid("2025-11-03", float("nan"), "2026-01-14")), len(grid))
+
     def test_bad_cadence(self):
         with self.assertRaises(ValueError):
             asof_grid("2025-11-03", self.cutoff, "2026-04-06", cadence="hourly")
