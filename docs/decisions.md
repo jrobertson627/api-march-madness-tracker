@@ -235,3 +235,11 @@ to a service that follows `render.yaml`, otherwise the setting is changed in the
 Selection Sunday, and `/v1/bracket/{season}` answers 404 for it (`snapshot_not_found`, because brackets use only the Selection Sunday snapshot). Without the flag, a
 client that opens on the newest season would open on an error as soon as the first live snapshot was published. The field is additive and `kind` was already on
 each snapshot, so the frontend can also tell a live snapshot from a Selection Sunday one.
+
+## 28. The feature build handles a season in progress
+
+The build took Selection Sunday and the last game date from the tournament games, so a season with none raised `KeyError`, and that is every season until the
+field is set. Now such a season has no cutoff and no seeds, its weekly grid ends on its newest game date, and that date is built because no game is after it to ask
+for it. This replaces an assumption in the Phase 6 design, that a Monday run would miss Sunday's games: a team_asof row includes games on its as-of date, so the
+Sunday row already has them. `through` drops games after a date, for a run that should leave out a day still in progress. Gives up: a snapshot dated on a day whose
+games were only partly in the database is not repeatable, so the refresh should use a `through` of the day before the run.

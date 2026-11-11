@@ -25,12 +25,19 @@ def asof_grid(first_game, cutoff, last_game, cadence: str = "weekly") -> list[pd
     weekly: every Sunday from `first_game` through `cutoff` (Selection Sunday),
             then every day after the cutoff through `last_game`.
     daily:  every day from `first_game` through `last_game`.
+
+    A season in progress has no tournament games yet, so no cutoff (`cutoff` is None). Weekly then means every Sunday
+    from `first_game` through `last_game`, plus `last_game` itself. A team_asof row includes games on its as-of date, so
+    the last date is the one that sees every game played so far.
     """
-    first, cutoff, last = (pd.Timestamp(x).normalize() for x in (first_game, cutoff, last_game))
+    if cadence not in ("daily", "weekly"):
+        raise ValueError(f"cadence must be 'weekly' or 'daily', got {cadence!r}")
+    first, last = (pd.Timestamp(x).normalize() for x in (first_game, last_game))
     if cadence == "daily":
         return list(pd.date_range(first, last, freq="D"))
-    if cadence != "weekly":
-        raise ValueError(f"cadence must be 'weekly' or 'daily', got {cadence!r}")
+    if cutoff is None or pd.isna(cutoff):
+        return list(pd.date_range(first, last, freq="W-SUN").union(pd.DatetimeIndex([last])))
+    cutoff = pd.Timestamp(cutoff).normalize()
     sundays = pd.date_range(first, cutoff, freq="W-SUN").union(pd.DatetimeIndex([cutoff]))
     after = pd.date_range(cutoff + pd.Timedelta(days=1), last, freq="D")
     return list(sundays.append(after))

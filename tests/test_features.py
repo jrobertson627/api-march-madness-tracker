@@ -143,23 +143,53 @@ class MatchupLeakageTests(unittest.TestCase):
     def test_adding_games_after_a_date_does_not_change_earlier_features(self):
         """The live season grows week by week. A row built before more games arrived must equal the same row built after.
 
-        The tournament games stay in both worlds, because the build takes Selection Sunday from them (a season with no
-        tournament games yet cannot be built at all, see p6-21). Only the games in the weeks between `cut` and March differ.
+        The short world is a season in progress: no tournament games, so no Selection Sunday.
         """
         facts, box, meta = make_world()
         full = run(facts, box, meta)["matchups"].set_index("game_id")
 
         cut = T("2026-02-01")
-        dropped = (lambda f: (f["game_date"] > cut) & (f["game_date"] <= T("2026-03-10")))
-        short_box = box[~dropped(box)]
-        short_facts = facts[~dropped(facts)]
-        short = run(short_facts, short_box, meta)["matchups"].set_index("game_id")
+        short = run(facts[facts["game_date"] <= cut], box[box["game_date"] <= cut], meta)["matchups"].set_index("game_id")
 
         early = short.index[short["game_date"] <= cut]
         self.assertGreater(len(early), 20)
         self.assertTrue(set(early) <= set(full.index))
         cols = feature_cols(full)
         pd.testing.assert_frame_equal(short.loc[early, cols], full.loc[early, cols])
+
+
+class SeasonInProgressTests(unittest.TestCase):
+    """A season with no tournament games yet has no Selection Sunday, no seeds, and ends its grid on its newest game."""
+
+    def live(self, cut, **kw):
+        facts, box, meta = make_world()
+        return run(facts[facts["game_date"] <= T(cut)], box[box["game_date"] <= T(cut)], meta, **kw)
+
+    def test_it_builds_without_any_tournament_games(self):
+        out = self.live("2026-02-01")
+        self.assertEqual(out["cutoffs"], {})
+        self.assertGreater(len(out["matchups"]), 20)
+        self.assertTrue(out["team_asof"]["seed"].isna().all())  # seeds are announced on Selection Sunday
+        self.assertTrue((out["matchups"]["as_of"] < out["matchups"]["game_date"]).all())
+
+    def test_the_newest_as_of_date_is_the_newest_game_date_even_when_it_is_not_a_sunday(self):
+        ta = self.live("2026-02-04")["team_asof"]  # a Wednesday
+        self.assertEqual(ta["as_of"].max(), T("2026-02-04"))
+        self.assertIn(T("2026-02-01"), set(ta["as_of"]))  # and the Sundays before it
+        # the newest date sees every game played so far: its game counts add up to the games in the data
+        newest = ta[ta["as_of"] == ta["as_of"].max()]
+        facts, _, _ = make_world()
+        played = facts[facts["game_date"] <= T("2026-02-04")].groupby("team").size()
+        self.assertEqual(newest.set_index("team")["games"].to_dict(), played.reindex(newest["team"]).to_dict())
+
+    def test_through_leaves_out_games_after_it(self):
+        facts, box, meta = make_world()
+        cut = T("2026-02-04")
+        a = run(facts, box, meta, through=cut)
+        b = self.live("2026-02-04")
+        pd.testing.assert_frame_equal(a["team_asof"], b["team_asof"])
+        pd.testing.assert_frame_equal(a["matchups"], b["matchups"])
+        self.assertEqual(a["cutoffs"], {})  # the tournament games after `through` are gone too
 
 
 class TournamentAsOfTests(unittest.TestCase):

@@ -394,7 +394,8 @@ def build_team_asof(
     ta = pd.concat(parts, ignore_index=True)
     m = meta.assign(seed=pd.to_numeric(meta["ncaa_seed"], errors="coerce"))[["season", "team", "conference", "seed"]]
     ta = ta.merge(m, on=["season", "team"], how="left").merge(coach_features(meta), on=["season", "team"], how="left")
-    ta["seed"] = ta["seed"].where(ta["as_of"] >= ta["season"].map(cutoffs))  # seeds are announced on Selection Sunday
+    # seeds are announced on Selection Sunday. A season in progress has no cutoff (NaT), so none of its rows has a seed.
+    ta["seed"] = ta["seed"].where(ta["as_of"] >= pd.to_datetime(ta["season"].map(cutoffs)))
     assert (ta["max_input_date"] <= ta["as_of"]).all(), "leak: a team_asof row used a game after its as_of"
     return ta
 
@@ -536,28 +537,39 @@ def assemble_feature_matrix(
     shrink_games: float = 4.0,
     min_games: int = DEFAULT_MIN_GAMES,
     elo_kwargs: dict | None = None,
+    through=None,
 ) -> dict:
     """Everything after loading: grid, as-of dates, Elo, team_asof and matchups.
 
     Pure pandas, so tests can run it on synthetic data. Returns a dict with
     matchups, team_asof, cutoffs and report.
+
+    `through` drops every game dated after it, so a run can leave out a day that is still being played.
+
+    A season with no tournament games yet (the live season) has no Selection Sunday, so it has no entry in `cutoffs`,
+    its teams have no seeds, and its newest as-of date is the date of its newest game.
     """
+    if through is not None:
+        through = pd.Timestamp(through)
+        facts, box = facts[facts["game_date"] <= through], box[box["game_date"] <= through]
     seasons = sorted(facts["season"].unique())
     games_all = build_games(facts)
 
     ncaa = games_all[games_all["game_group"] == "ncaa"]
     cutoffs = cutoffs_from_games(ncaa)
-    last_game = ncaa.groupby("season")["game_date"].max()
+    last_ncaa = ncaa.groupby("season")["game_date"].max()
+    last_any = facts.groupby("season")["game_date"].max()
     first_game = facts.groupby("season")["game_date"].min()
-    grid = {s: asof_mod.asof_grid(first_game[s], cutoffs[s], last_game[s], cadence) for s in seasons}
+    grid = {s: asof_mod.asof_grid(first_game[s], cutoffs.get(s), last_ncaa.get(s, last_any[s]), cadence) for s in seasons}
 
     games = games_all[games_all["game_group"].isin(include)].copy()
     games["as_of"] = asof_mod.asof_for_games(games, grid, cutoffs, mode)
     no_asof = int(games["as_of"].isna().sum())
     games = games.dropna(subset=["as_of"]).reset_index(drop=True)
-    # Selection Sunday is always built, so the bracket-time snapshot exists in either mode.
+    # Selection Sunday is always built, so the bracket-time snapshot exists in either mode. A season in progress has none,
+    # so its newest grid date is built instead: no game is after it, so no game would ask for it.
     dates_by_season = {
-        int(s): pd.DatetimeIndex(g.unique()).union(pd.DatetimeIndex([cutoffs[int(s)]]))
+        int(s): pd.DatetimeIndex(g.unique()).union(pd.DatetimeIndex([cutoffs[int(s)] if int(s) in cutoffs else max(grid[int(s)])]))
         for s, g in games.groupby("season")["as_of"]
     }
 
@@ -587,10 +599,11 @@ def load_raw(seasons) -> dict:
     box = load_box_games(seasons)
     facts = load_game_facts(seasons, box)
     ncaa_last = facts[facts["game_group"] == "ncaa"].groupby("season")["game_date"].max()
+    last_any = facts.groupby("season")["game_date"].max()  # a season in progress has no tournament games yet
     meta = load_team_meta(seasons)
     players, prior, prior_cache = {}, {}, {}
     for s in seasons:
-        players[s] = load_player_games(s, ncaa_last[s])
+        players[s] = load_player_games(s, ncaa_last.get(s, last_any[s]))
         if s - 1 not in prior_cache:
             prior_cache[s - 1] = load_player_seasons(s - 1)
         prior[s] = prior_cache[s - 1]
@@ -598,11 +611,11 @@ def load_raw(seasons) -> dict:
 
 
 def build_from_raw(raw: dict, include=GAME_GROUPS, cadence: str = "weekly", mode: str = "game", shrink_games: float = 4.0,
-                   min_games: int = DEFAULT_MIN_GAMES, elo_kwargs: dict | None = None, with_players: bool = True) -> dict:
+                   min_games: int = DEFAULT_MIN_GAMES, elo_kwargs: dict | None = None, with_players: bool = True, through=None) -> dict:
     """Assemble from loaded data. `with_players=False` skips roster features (much faster; roster columns are NaN)."""
     return assemble_feature_matrix(
         raw["facts"], raw["box"], raw["players"] if with_players else {}, raw["prior"] if with_players else {}, raw["meta"],
-        include, cadence, mode, shrink_games, min_games, elo_kwargs,
+        include, cadence, mode, shrink_games, min_games, elo_kwargs, through,
     )
 
 
@@ -614,9 +627,10 @@ def build_feature_matrix(
     shrink_games: float = 4.0,
     min_games: int = DEFAULT_MIN_GAMES,
     elo_kwargs: dict | None = None,
+    through=None,
 ) -> dict:
-    """Load from the database, then assemble. Adds `facts` to the returned dict."""
+    """Load from the database, then assemble. Adds `facts` to the returned dict. `through`: ignore games after this date."""
     raw = load_raw(seasons)
-    out = build_from_raw(raw, include, cadence, mode, shrink_games, min_games, elo_kwargs)
+    out = build_from_raw(raw, include, cadence, mode, shrink_games, min_games, elo_kwargs, through=through)
     out["facts"] = raw["facts"]
     return out
