@@ -116,6 +116,15 @@ Render's own documentation says a free web service spins down after 15 minutes w
 production use. The first request after a spin-down waits for the service to start. The app itself imports in under a second and does not load any
 machine-learning library, so the wait is mostly Render's. Nothing in the app writes to local disk.
 
+## Tests, CI and deploys (Phase 6)
+
+- `.github/workflows/ci.yml` runs on every push to `main` and every pull request: all tests, the API alone without scikit-learn, and a check that the generated docs
+  are current. Locally the same thing is `python -m unittest discover -s tests` and `python scripts/gen_api_docs.py` followed by `git diff docs`.
+- `constraints.txt` pins the packages the live API runs, and `.python-version` pins its Python. To upgrade, edit the versions, let CI pass, then deploy.
+- Render should deploy only after the checks pass. For this service that is the Auto-Deploy setting "After CI checks pass" (Settings, Build and Deploy). `render.yaml`
+  says the same with `autoDeployTrigger: checksPass`, but it only applies if the service follows the blueprint. Set it for the static site in the dashboard too.
+- A season in progress shows in `GET /v1/seasons` with `has_bracket: false` and a `latest` snapshot. Its bracket route answers 404 until Selection Sunday.
+
 ## Checks after a deploy
 
 - `GET /health` is `ok`.
