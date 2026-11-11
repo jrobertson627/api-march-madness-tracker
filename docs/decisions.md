@@ -215,3 +215,23 @@ upset signal that held up (the model picks the underdog) and the one that did no
 The web service uses the read-only `api_reader` URL as `DATABASE_URL`. Anything that creates or changes tables or rows (`check_migration.py`,
 `check_store_postgres.py`, `apply_migration.py`, the publishers) uses `PUBLISH_DATABASE_URL` when it is set, and fails with a permission error when only the
 read-only URL is available. Migration 003 must be applied before the code that reads `brackets.results` is deployed.
+
+# Phase 6 decisions
+
+## 26. Tests on every change, and the runtime versions pinned
+
+GitHub Actions runs three jobs on every push to `main` and every pull request: all tests with scikit-learn installed, the API tests with only what Render installs
+(so an import of scikit-learn, scipy or matplotlib into `api/` fails before it reaches a deploy), and a regeneration of `docs/api.md` and `docs/examples/` that
+fails if the committed copy is stale. The leakage tests (`test_asof`, `test_features`, `test_snapshots`) are part of the first job; one more was added, that adding
+games after a date leaves earlier feature rows unchanged. `constraints.txt` holds the package versions the live API was running on 2026-11-10, taken from
+Render's build log, and `.python-version` holds its Python (3.14.10). Until then nothing was pinned: Render had resolved numpy 2.5.4 and pandas 3.1.1 while the
+tests ran locally on numpy 2.4.4 and pandas 3.0.6. `requirements.txt` includes `constraints.txt`, so Render, CI and a local install resolve the same packages.
+Gives up: versions move only when someone edits `constraints.txt`. Render deploys after the checks pass (`autoDeployTrigger: checksPass`); this only applies
+to a service that follows `render.yaml`, otherwise the setting is changed in the dashboard.
+
+## 27. `has_bracket` on each season
+
+`GET /v1/seasons` says for each season whether a bracket field is published. A season in progress has predictions for the compare page and no field until
+Selection Sunday, and `/v1/bracket/{season}` answers 404 for it (`snapshot_not_found`, because brackets use only the Selection Sunday snapshot). Without the flag, a
+client that opens on the newest season would open on an error as soon as the first live snapshot was published. The field is additive and `kind` was already on
+each snapshot, so the frontend can also tell a live snapshot from a Selection Sunday one.

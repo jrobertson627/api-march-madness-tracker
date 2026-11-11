@@ -118,7 +118,7 @@ Always `200` while the web service is up. `status` is `degraded` when the predic
 
 ## GET /v1/models, GET /v1/seasons
 
-Model versions (with held-out metrics and the active flag), and the seasons that have published snapshots.
+Model versions (with held-out metrics and the active flag), and the seasons that have published snapshots. `has_bracket` is false for a season in progress: it has predictions for the compare page but no field until Selection Sunday, so `/v1/bracket/{{season}}` answers 404 for it.
 
 {table(SCHEMAS['models'])}
 

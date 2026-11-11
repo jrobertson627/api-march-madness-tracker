@@ -89,7 +89,8 @@ SCHEMAS = {
     },
     "models": {"type": "object", "required": ["models"], "properties": {"models": {"type": "array", "items": MODEL}}},
     "seasons": {"type": "object", "required": ["seasons"], "properties": {"seasons": {"type": "array", "items": {
-        "type": "object", "required": ["season", "snapshots"], "properties": {"season": {"type": "integer"}, "snapshots": {"type": "array", "items": SNAPSHOT}}}}}},
+        "type": "object", "required": ["season", "has_bracket", "snapshots"],
+        "properties": {"season": {"type": "integer"}, "has_bracket": {"type": "boolean"}, "snapshots": {"type": "array", "items": SNAPSHOT}}}}}},
     "health": {"type": "object", "required": ["status", "store"], "properties": {"status": {"enum": ["ok", "degraded"]}, "store": {"type": "boolean"},
                                                                                   "active_model": {"oneOf": [MODEL, {"type": "null"}]}, "latest_snapshot": {"oneOf": [SNAPSHOT, {"type": "null"}]}}},
     "error": {"type": "object", "required": ["error"], "properties": {"error": {"type": "object", "required": ["code", "message", "details"],

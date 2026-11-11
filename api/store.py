@@ -66,6 +66,7 @@ class Store:
     def pairs_among(self, snap: Snapshot, teams: list[str]) -> pd.DataFrame: raise NotImplementedError
     def teams(self, snap: Snapshot) -> pd.DataFrame: raise NotImplementedError
     def bracket(self, season: int) -> dict | None: raise NotImplementedError   # teams, final_four, as_of, results
+    def bracket_seasons(self) -> set[int]: raise NotImplementedError   # seasons that have a bracket field, without loading any of them
     def backtest(self) -> dict | None: raise NotImplementedError   # the newest backtest report, with created_at, model_id and data_hash
     def ping(self) -> bool: raise NotImplementedError
     def write_snapshot(self, bundle: Bundle, replace: bool = False, activate: bool = False) -> dict: raise NotImplementedError
@@ -136,6 +137,10 @@ class FileStore(Store):
             return None
         d = json.loads(p.read_text(encoding="utf-8"))
         return {"teams": pd.DataFrame(d["teams"]), "final_four": d["final_four"], "as_of": d.get("as_of"), "results": d.get("results", [])}
+
+    def bracket_seasons(self):
+        d = self.root / "brackets"
+        return {int(p.stem) for p in d.glob("*.json") if p.stem.isdigit()} if d.exists() else set()
 
     def backtest(self):
         p = self.root / "backtest.json"
@@ -243,6 +248,9 @@ class PostgresStore(Store):
         t = self._q("SELECT team, name, seed, region FROM predictions.bracket_teams WHERE season = %s ORDER BY region, seed, team", (season,))
         return {"teams": pd.DataFrame(t, columns=["team", "name", "seed", "region"]), "final_four": b[0]["final_four"], "as_of": _date(b[0]["as_of"]),
                 "results": b[0]["results"] or []}
+
+    def bracket_seasons(self):
+        return {int(r["season"]) for r in self._q("SELECT season FROM predictions.brackets")}
 
     def backtest(self):
         rows = self._q("SELECT model_id, data_hash, created_at, report FROM predictions.backtest_reports ORDER BY created_at DESC, id DESC LIMIT 1")
